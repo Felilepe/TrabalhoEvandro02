@@ -1,0 +1,83 @@
+#ifndef LISTA_H
+#define LISTA_H
+
+#include <stdbool.h>
+
+// Definimos 'item' da mesma forma que em fila.h e pilha.h
+// para consistência.
+#ifndef ITEM_T_DEFINED
+typedef void *item;
+#define ITEM_T_DEFINED
+#endif
+
+// Opaque pointer para a struct da lista
+typedef struct lista Lista;
+
+/****************************************************
+*@brief Cria uma lista vazia.
+*@return Um ponteiro para a lista inicializada.
+****************************************************/
+Lista *lista_create();
+
+/********************************************************************
+*@brief Verifica se a lista está vazia.
+*@param l Ponteiro para a lista que será checada.
+*@return True se a lista estiver vazia, caso contrário False.
+********************************************************************/
+bool lista_isEmpty(Lista *l);
+
+/******************************************************************
+*@brief Pega o número de itens atualmente na lista.
+*@param l Ponteiro para a lista.
+*@return O número de itens (int) na lista.
+******************************************************************/
+int lista_getSize(Lista *l);
+
+/*****************************************************************
+ *@brief Adiciona um item no início da lista.
+ *@param l Ponteiro para a lista.
+ *@param i O item (void*) a ser adicionado.
+ *****************************************************************/
+void lista_insere_inicio(Lista *l, item i);
+
+/*****************************************************************
+ *@brief Adiciona um item no fim da lista.
+ *@param l Ponteiro para a lista.
+ *@param i O item (void*) a ser adicionado.
+ *****************************************************************/
+void lista_insere_fim(Lista *l, item i);
+
+/**********************************************************************************
+*@brief Remove e retorna o item do início da lista.
+*@param l Ponteiro para a lista.
+*@return Retorna o ponteiro para o item (void*).
+*@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
+**********************************************************************************/
+item lista_remove_inicio(Lista *l);
+
+/**********************************************************************************
+*@brief Remove e retorna o item do fim da lista.
+*@param l Ponteiro para a lista.
+*@return Retorna o ponteiro para o item (void*).
+*@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
+**********************************************************************************/
+item lista_remove_fim(Lista *l);
+
+/*****************************************************************************
+*@brief Percorre a lista e executa uma função 'acao' para cada item.
+* (Modelado a partir de fila_passthrough)
+*@param l Ponteiro para a lista.
+*@param acao A função de callback a ser executada em cada item.
+*@param aux_data Um ponteiro auxiliar para ser passado para a função 'acao'.
+*****************************************************************************/
+void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data);
+
+/******************************************************************
+*@brief Libera toda a memória alocada pelos nós da lista.
+*@note NÃO libera a memória dos 'itens' (dados) armazenados.
+*@param l Ponteiro para a lista a ser destruída.
+******************************************************************/
+void lista_destroy(Lista *l);
+
+
+#endif

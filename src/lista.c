@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "lista.h"
+
+
+typedef struct nodeL 
+{
+    item data;         
+    struct nodeL *next;
+    struct nodeL *prev; 
+} NodeL;
+
+struct lista {
+    NodeL *head;  
+    NodeL *tail;  
+    int size;
+};
+
+
+Lista *lista_create()
+{
+    Lista *l = (Lista*)malloc(sizeof(Lista));
+    if(l == NULL){
+        printf("Erro na alocacao de memoria ao criar lista.");
+        exit(1);
+    }
+    
+    l->head = NULL;
+    l->tail = NULL;
+    l->size = 0;
+    return l;
+}
+
+bool lista_isEmpty(Lista *l)
+{
+    return l->size == 0;
+}
+
+int lista_getSize(Lista *l)
+{
+    if(l == NULL) return 0;
+    return l->size;
+}
+
+void lista_insere_inicio(Lista *l, item i)
+{
+    NodeL *novoNode = (NodeL*)malloc(sizeof(NodeL));
+    if(novoNode == NULL){
+        printf("Erro na alocacao de memoria ao criar novo no para lista.");
+        exit(1);
+    }
+    
+    novoNode->data = i;
+    novoNode->prev = NULL;
+    novoNode->next = l->head;
+
+    if(lista_isEmpty(l)){
+        l->head = novoNode;
+        l->tail = novoNode;
+    } else {
+        l->head->prev = novoNode;
+        l->head = novoNode;
+    }
+    l->size++;
+}
+
+void lista_insere_fim(Lista *l, item i)
+{
+    NodeL *novoNode = (NodeL*)malloc(sizeof(NodeL));
+    if(novoNode == NULL){
+        printf("Erro na alocacao de memoria ao criar novo no para lista.");
+        exit(1);
+    }
+    
+    novoNode->data = i;
+    novoNode->next = NULL;
+    novoNode->prev = l->tail;
+
+    if(lista_isEmpty(l)){
+        l->head = novoNode;
+        l->tail = novoNode;
+    } else {
+        l->tail->next = novoNode;
+        l->tail = novoNode;
+    }
+    l->size++;
+}
+
+item lista_remove_inicio(Lista *l)
+{
+    if(lista_isEmpty(l)){
+        printf("Erro: Tentativa de remocao de lista vazia.");
+        exit(1);
+    }
+
+    NodeL *nodeRemover = l->head;
+    item itemRetornar = nodeRemover->data;
+    
+    l->head = nodeRemover->next; 
+    l->size--;
+
+    if(lista_isEmpty(l)){
+        l->tail = NULL;
+    } else {
+        l->head->prev = NULL;
+    }
+    
+    free(nodeRemover);
+    return itemRetornar;
+}
+
+item lista_remove_fim(Lista *l)
+{
+    if(lista_isEmpty(l)){
+        printf("Erro: Tentativa de remocao de lista vazia.");
+        exit(1);
+    }
+
+    NodeL *nodeRemover = l->tail;
+    item itemRetornar = nodeRemover->data;
+    
+    l->tail = nodeRemover->prev; 
+    l->size--;
+
+    if(lista_isEmpty(l)){
+        l->head = NULL;
+    } else {
+        l->tail->next = NULL;
+    }
+    
+    free(nodeRemover);
+    return itemRetornar;
+}
+
+void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data)
+{
+    if (l == NULL || acao == NULL || lista_isEmpty(l)) {
+        return;
+    }
+
+    NodeL *atual = l->head;
+
+    while (atual != NULL) {
+        acao(atual->data, aux_data);
+        atual = atual->next;
+    }
+}
+
+void lista_destroy(Lista *l)
+{
+    if (l == NULL) return;
+
+    NodeL *atual = l->head;
+    
+    while(atual != NULL){
+        NodeL *temp = atual;
+        atual = atual->next;
+        free(temp); 
+    }
+    
+    free(l);
+}
