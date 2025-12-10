@@ -1,6 +1,7 @@
 #ifndef TEXTO_H
 #define TEXTO_H
 #include "anteparo.h"
+#include "linha.h"
 
 typedef void* Texto;
 
@@ -194,7 +195,6 @@ void texto_destroy(Texto t);
 *@brief Cria uma linha utilizando as coordenadas de um texto.
 *@param t O texto original.
 *@return A linha resultante.
-
 ******************************************************************/
 Linha conversaoTxtoLinha(Texto t);
 

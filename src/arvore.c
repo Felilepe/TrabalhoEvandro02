@@ -270,6 +270,41 @@ int arvore_getSize(Arvore *arvore) {return arvore ? arvore->tamanho : 0;}
 
 bool arvore_isEmpty(Arvore *arvore) {return arvore ? (arvore->tamanho == 0) : true;}
 
+void* arvore_get_root_data(Arvore *arvore) {
+    if (arvore && arvore->root) {
+        return arvore->root->data; 
+    }
+    return NULL;
+}
+
+void* arvore_get_min(Arvore *arvore) {
+    if (arvore == NULL || arvore->root == NULL) {
+        return NULL;
+    }
+
+    Node *atual = arvore->root;
+    
+    while (atual->left != NULL) {
+        atual = atual->left;
+    }
+
+    return atual->data;
+}
+
+void* arvore_get_max(Arvore *arvore) {
+    if (arvore == NULL || arvore->root == NULL) {
+        return NULL;
+    }
+
+    Node *atual = arvore->root;
+
+    while (atual->right != NULL) {
+        atual = atual->right;
+    }
+
+    return atual->data;
+}
+
 void avl_em_ordem(Arvore *arvore, ActionFunc action) {if (arvore) em_ordem_rec(arvore->root, action);}
 
 void avl_pre_ordem(Arvore *arvore, ActionFunc action) {if (arvore) pre_ordem_rec(arvore->root, action);}

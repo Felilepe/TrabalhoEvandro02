@@ -24,6 +24,9 @@ void* arvore_remove(Arvore *arvore, void *key);
 int arvore_getHeight(Arvore *arvore);
 int arvore_getSize(Arvore *arvore);
 bool arvore_isEmpty(Arvore *arvore);
+void* arvore_get_min(Arvore *arvore);
+void* arvore_get_max(Arvore *arvore);
+void* arvore_get_root_data(Arvore *arvore);
 
 void arvore_em_ordem(Arvore *arvore, ActionFunc action);
 void arvore_pre_ordem(Arvore *arvore, ActionFunc action);
