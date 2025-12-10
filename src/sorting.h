@@ -1,10 +1,16 @@
 #ifndef SORTING_H
 #define SORTING_H
 
-int double_compare(const void *x, const void *y);
+#include <stddef.h> /* para size_t */
 
-void sort_insertionGeneric(void *start, int num_elements, int element_size, int (*compare_func)(const void *a, const void *b));
+// Definição do tipo para a função de comparação
+// Retorna < 0 se a < b, 0 se a == b, > 0 se a > b
+typedef int (*CompareFunc)(const void *a, const void *b);
 
-void sort_mergeGeneric(void *start, int num_elements, int element_size, int (*compare_func)(const void *a, const void *b), int threshold);
+// Insertion Sort Genérico
+void generic_insertion_sort(void *base, size_t nmemb, size_t size, CompareFunc cmp);
+
+// Merge Sort Genérico
+void generic_merge_sort(void *base, size_t nmemb, size_t size, CompareFunc cmp);
 
 #endif
