@@ -7,10 +7,24 @@
 #include "linha.h"
 #include "texto.h"
 #include "formas.h"
+#include "lista.h"
+#include "svg.h"
+#include "poligono.h"
 
 #define DEFAULT_WIDTH 1.5
 #define OPACITY 0.5
 
+
+
+static void svg_imprimir_vertice(void* item, void* aux) //Função auxiliar para imprimir vértices do polígono no SVG
+{ 
+    FILE* svg = (FILE*) aux;
+    
+
+    struct { double x, y; } *v = item;
+
+    fprintf(svg, "%.2lf,%.2lf ", v->x, v->y);
+}
 
 FILE* startSVG(const char* file_path) {
 	FILE* svg = fopen(file_path, "w");
@@ -98,7 +112,17 @@ void svg_insertForma(FILE *file_name, forma f)
     }
 }
 
+void svg_insertPoligono(FILE *file_name, Poligono p) {
+    if (file_name == NULL || p == NULL) return;
 
+    fprintf(file_name, "\t<polygon points=\"");
+    
+    Lista *listaV = poligono_getVertices(p);
+
+    lista_passthrough(listaV, svg_imprimir_vertice, file_name);
+
+    fprintf(file_name, "\" fill=\"lime\" opacity=\"0.5\" stroke=\"none\" />\n");
+}
 
 void draw(item i, item aux)
 {

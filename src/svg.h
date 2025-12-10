@@ -8,6 +8,7 @@
 #include "linha.h"
 #include "texto.h"
 #include "formas.h"
+#include "poligono.h"
 
 /******************************************************************
 *@brief Abre um arquivo .svg e escreve o cabeçalho SVG.
@@ -58,6 +59,12 @@ void svg_insertTexto(FILE *file_name, Texto t);
 ******************************************************************/
 void svg_insertForma(FILE *file_name, forma f);
 
+/******************************************************************
+*@brief Insere um polígono no SVG.
+*@param file_name O ponteiro (FILE*) para o arquivo SVG.
+*@param p O polígono a ser desenhado.
+******************************************************************/
+void svg_insertPoligono(FILE *file_name, Poligono p);
 
 /******************************************************************
 *@brief Função de callback para `fila_passthrough` que desenha um item.
