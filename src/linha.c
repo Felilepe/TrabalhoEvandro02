@@ -98,3 +98,15 @@ void linha_destroy(Linha l)
 }
 
 
+
+Anteparo linha_anteparo(Linha l, int *ant_id)
+{
+linha *lin = (linha*)l;
+
+ if(lin == NULL || ant_id == NULL){
+        printf("Erro: linha ou ant_id nulo na funcao linha_anteparo\n");
+        exit(1);
+    }
+
+    return anteparo_create(++(*ant_id), lin -> x1, lin -> y1, lin -> x2, lin -> y2, lin -> cor);
+}

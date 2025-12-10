@@ -1,6 +1,7 @@
 #ifndef LINHA_H
 #define LINHA_H
 #include <stdbool.h>
+#include "anteparo.h"
 
 typedef void* Linha;
 
@@ -126,5 +127,15 @@ void linha_setCor(Linha l, char *cor);
 *@param l A linha a ser destruída.
 ******************************************************************/
 void linha_destroy(Linha l);
+
+
+/****************************************************************************************
+* @brief Converte uma linha em um anteparo.
+* @param l A linha a ser convertido.
+* @param ant_id Ponteiro para o ID do anteparo.
+* @return Retorna o anteparo criado.
+****************************************************************************************/
+Anteparo linha_anteparo(Linha l, int *ant_id);
+
 
 #endif
