@@ -1,5 +1,6 @@
 #ifndef CIRCULO_H
 #define CIRCULO_H
+#include "anteparo.h"
 
 typedef void* Circulo;
 
@@ -116,5 +117,16 @@ void circulo_setCorPreench(Circulo c, char *corpreench);
 * @param c O círculo a ser destruído.
 ****************************************************************************************/
 void circulo_destroy(Circulo c);
+
+
+
+/****************************************************************************************
+* @brief Converte um círculo em um anteparo.
+* @param c O círculo a ser convertido.
+* @param orientacao A orientação do anteparo ('h' para horizontal, 'h' para vertical).
+* @param ant_id Ponteiro para o ID do anteparo.
+* @return Retorna o anteparo criado.
+****************************************************************************************/
+Anteparo circulo_anteparo(Circulo c, char orientacao, int *ant_id);
 
 #endif

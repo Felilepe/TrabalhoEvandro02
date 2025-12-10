@@ -7,6 +7,7 @@
 #define TIPO_T 4
 
 #include <stdio.h>
+#include "lista.h"
 
 typedef void* forma;
 
@@ -131,6 +132,16 @@ void forma_setCorBorda(forma f, char* corb);
 *@param corp A nova Cor de Preenchimento.
 ******************************************************************/
 void forma_setCorPreench(forma f, char* corp);
+
+
+/******************************************************************
+*@brief Chama a função relevante para conversão em anteparo.
+*@param f A forma genérica.
+*@param ant_id O ID do anteparo.
+*@param orientacao A orientação do anteparo.
+*@return O(s) anteparo(s) criado(s).
+******************************************************************/
+Lista *forma_anteparo(forma f, int *ant_id, char orientacao);
 
 
 #endif
