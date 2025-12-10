@@ -3,7 +3,7 @@
 
 typedef void *Anteparo;
 
-Anteparo antemparo_create(int id, double x1, double y1, double x2, double y2, const char *cor);
+Anteparo anteparo_create(int id, double x1, double y1, double x2, double y2, const char *cor);
 
 
 int anteparo_getId(Anteparo a);
