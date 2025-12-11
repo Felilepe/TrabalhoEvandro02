@@ -1,312 +1,335 @@
 #include "arvore.h"
-#include <stdlib.h>
+
+#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-
-typedef struct Node 
+typedef struct stNode 
 {
     void *data;
-    struct Node *left;
-    struct Node *right;
-    int height; 
-} Node;
+    struct stNode *esquerda;
+    struct stNode *direita;
+    int altura;
+} node_AVL;
 
-struct stArvore 
+typedef struct stArvore 
 {
-    Node *root;
+    node_AVL *root;
     int tamanho;
-    CompareFunc cmp;
-    ActionFunc free_data; 
-};
+    int (*cmp_data)(const void *a, const void *b);
+    void (*free_data)(void *data);
+    void (*print_data)(void *data);
+} arvore;
 
-
-static int altura_no(Node *n) {return (n == NULL) ? -1 : n->height;}
-
-static int maior(int a, int b) {return (a > b) ? a : b;}
-
-static void atualizar_altura(Node *n) 
-{
-    if (n) {
-        n->height = 1 + maior(altura_no(n->left), altura_no(n->right));
+arvore *arvore_create(int (*cmp_data)(const void *a, const void *b), void (*free_data)(void *data), void (*print_data)(void *data)) {
+    arvore *a = malloc (sizeof(arvore));
+    if (a == NULL) {
+        printf("ÁRVORE: Erro ao criar a estrutura árvore!\n");
+        return NULL;
     }
+
+    a -> root = NULL;
+    a -> tamanho = 0;
+    a -> cmp_data = cmp_data;
+    a -> free_data = free_data;
+    a -> print_data = print_data;
+
+    return a;
 }
 
-static int fator_balanceamento(Node *n) 
-{
+node_AVL *arvore_getRoot(arvore *t) {
+    return t -> root;
+}
+
+static int get_altura_node(node_AVL *n) {
+    if (n == NULL) return -1;
+    return n -> altura;
+}
+
+int get_altura_arvore(arvore *t) {
+    if (t == NULL || t -> root == NULL) return -1;
+    return get_altura_node(t -> root);
+}
+
+int get_tam_AVL(arvore *t) {
+    return t -> tamanho;
+}
+
+static int get_fb(node_AVL *n) {
     if (n == NULL) return 0;
-    return altura_no(n->left) - altura_no(n->right);
+    return get_altura_node(n -> esquerda) - get_altura_node(n -> direita);
 }
 
-static Node* rotar_direita(Node *y) 
-{
-    Node *x = y->left;
-    Node *T2 = x->right;
-
-    x->right = y;
-    y->left = T2;
-
-    atualizar_altura(y);
-    atualizar_altura(x);
-
-    return x;
+node_AVL *get_esquerda_node(node_AVL *n) {
+    if (n == NULL) return NULL;
+    return n -> esquerda;
 }
 
-static Node* rotar_esquerda(Node *x) 
-{
-    Node *y = x->right;
-    Node *T2 = y->left;
+node_AVL *get_direita_node(node_AVL *n) {
+    if (n == NULL) return NULL;
+    return n -> direita;
+}
 
-    y->left = x;
-    x->right = T2;
+void *get_node_dataAVL(node_AVL *n) {
+    if (n == NULL) return NULL;
+    return n -> data;
+}
 
-    atualizar_altura(x);
-    atualizar_altura(y);
+bool is_empty_avl(arvore *avl) {
+    if (avl -> tamanho == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+static int maior_altura(int a, int b) {
+    return (a > b)? a : b;
+}
+
+static node_AVL *rotate_left(node_AVL *r) {
+    node_AVL *y, *f;
+
+    y = r -> direita;
+    f = y -> esquerda;
+
+    y -> esquerda = r;
+    r -> direita = f;
+
+    r -> altura = maior_altura(get_altura_node(r -> esquerda), get_altura_node(r -> direita)) + 1;
+    y -> altura = maior_altura(get_altura_node(y -> esquerda), get_altura_node(y -> direita)) + 1;
 
     return y;
 }
 
-static Node* balancear(Node *no) 
-{
-    if (no == NULL) return NULL;
+static node_AVL *rotate_right(node_AVL *r) {
+    node_AVL *y, *f;
 
-    atualizar_altura(no);
-    int fb = fator_balanceamento(no);
+    y = r -> esquerda;
+    f = y -> direita;
 
-    if (fb > 1 && fator_balanceamento(no->left) >= 0)
-        return rotar_direita(no);
+    y -> direita = r;
+    r -> esquerda = f;
 
-    if (fb > 1 && fator_balanceamento(no->left) < 0) {
-        no->left = rotar_esquerda(no->left);
-        return rotar_direita(no);
-    }
+    r -> altura = maior_altura(get_altura_node(r -> esquerda), get_altura_node(r -> direita)) + 1;
+    y -> altura = maior_altura(get_altura_node(y -> esquerda), get_altura_node(y -> direita)) + 1;
 
-    if (fb < -1 && fator_balanceamento(no->right) <= 0)
-        return rotar_esquerda(no);
-
-    if (fb < -1 && fator_balanceamento(no->right) > 0) {
-        no->right = rotar_direita(no->right);
-        return rotar_esquerda(no);
-    }
-
-    return no;
+    return y;
 }
 
+static node_AVL *rotate_right_left(node_AVL *r) {
+    r -> direita = rotate_right(r -> direita);
+    return rotate_left(r);
+}
 
-static Node* inserir_rec(Node* no, void* data, CompareFunc cmp, int *incrementou) 
-{
-    if (no == NULL) {
-        Node* novo = (Node*) malloc(sizeof(Node));
-        if (!novo) return NULL;
-        novo->data = data;
-        novo->left = NULL;
-        novo->right = NULL;
-        novo->height = 0;
-        *incrementou = 1; 
-        return novo;
+static node_AVL *rotate_left_right(node_AVL *r) {
+    r -> esquerda = rotate_left(r -> esquerda);
+    return rotate_right(r);
+}
+
+static node_AVL *create_node(void *data) {
+    node_AVL *node = malloc (sizeof(node_AVL));
+    if (node == NULL) {
+        printf("ÁRVORE: Erro ao criar nó para a árvore!\n");
+        return NULL;
     }
 
-    int comp = cmp(data, no->data);
+    node -> data = data;
+    node -> esquerda = NULL;
+    node -> direita = NULL;
+    node -> altura = 0;
 
-    if (comp < 0)
-        no->left = inserir_rec(no->left, data, cmp, incrementou);
-    else if (comp > 0)
-        no->right = inserir_rec(no->right, data, cmp, incrementou);
+    return node;
+}
+
+static int recalc_altura(node_AVL *node) {
+
+    return maior_altura(get_altura_node(node -> esquerda), get_altura_node(node -> direita)) + 1;
+}
+
+static node_AVL *balancear(node_AVL *r) {
+    int fb = get_fb(r);
+
+    if (fb < -1 && get_fb(r -> direita) <= 0) {
+        r = rotate_left(r);
+    }
+
+    else if (fb > 1 && get_fb(r -> esquerda) >= 0) {
+        r = rotate_right(r);
+    }
+
+    else if (fb > 1 && get_fb(r -> esquerda) < 0) {
+        r = rotate_left_right(r);
+    }
+
+    else if (fb < -1 && get_fb(r -> direita) > 0) {
+        r = rotate_right_left(r);
+    }
+
+    return r;
+}
+
+static node_AVL *insert_bst(arvore *t, node_AVL *node, void *data) {
+    if (node == NULL) {
+        node_AVL *new_node = create_node(data);
+        if (new_node != NULL) t -> tamanho++;
+        return new_node;
+    }
+
+    int c = t -> cmp_data(data, node -> data);
+
+    if (c < 0) {
+        node -> esquerda = insert_bst(t, node -> esquerda, data);
+    }
+
+    else if (c > 0) {
+        node -> direita = insert_bst(t, node -> direita, data);
+    }
+
     else {
-        return no; 
-    }
-
-    return balancear(no);
-}
-
-static Node* menor_no(Node* no) 
-{
-    Node* atual = no;
-    while (atual->left != NULL)
-        atual = atual->left;
-    return atual;
-}
-
-static Node* remover_rec(Node* no, void* key, CompareFunc cmp, void** dado_removido, int *decrementou) 
-{
-    if (no == NULL) return NULL;
-
-    int comp = cmp(key, no->data);
-
-    if (comp < 0) {
-        no->left = remover_rec(no->left, key, cmp, dado_removido, decrementou);
-    } else if (comp > 0) {
-        no->right = remover_rec(no->right, key, cmp, dado_removido, decrementou);
-    } else {
-        *dado_removido = no->data; 
-
-        if ((no->left == NULL) || (no->right == NULL)) {
-            Node *temp = (no->left) ? no->left : no->right;
-            
-            if (temp == NULL) { 
-                temp = no;
-                no = NULL;
-            } else { 
-                *no = *temp; 
-                free(temp); 
-            }
-            
-            if (no == NULL) { 
-                free(temp);
-                *decrementou = 1;
-                return NULL;
-            }
-            *decrementou = 1;
-        } else {
-            Node* temp = menor_no(no->right);
-            no->data = temp->data; 
-            void *lixo; 
-            int dec_temp = 0;
-            no->right = remover_rec(no->right, temp->data, cmp, &lixo, &dec_temp);
-            if(dec_temp) *decrementou = 1; 
+        if (t -> free_data != NULL) {
+            t -> free_data(data);
         }
     }
 
-    if (no == NULL) return NULL;
-    return balancear(no);
+    node -> altura = recalc_altura(node);
+    node = balancear(node);
+
+    return node;
+
 }
 
-static void* buscar_rec(Node *no, void *key, CompareFunc cmp) 
-{
-    if (no == NULL) return NULL;
-    int res = cmp(key, no->data);
-    if (res == 0) return no->data;
-    if (res < 0) return buscar_rec(no->left, key, cmp);
-    return buscar_rec(no->right, key, cmp);
+void arvore_insere(arvore *t, void *data) {
+    t -> root = insert_bst(t, t -> root, data);
 }
 
-static void destruir_rec(Node *no, ActionFunc free_data) 
-{
-    if (no != NULL) {
-        destruir_rec(no->left, free_data);
-        destruir_rec(no->right, free_data);
-        if (free_data) free_data(no->data);
-        free(no);
-    }
-}
-
-static void em_ordem_rec(Node *no, ActionFunc action) 
-{
-    if (no) {
-        em_ordem_rec(no->left, action);
-        action(no->data);
-        em_ordem_rec(no->right, action);
-    }
-}
-static void pre_ordem_rec(Node *no, ActionFunc action) 
-{
-    if (no) {
-        action(no->data);
-        pre_ordem_rec(no->left, action);
-        pre_ordem_rec(no->right, action);
-    }
-}
-static void pos_ordem_rec(Node *no, ActionFunc action) 
-{
-    if (no) {
-        pos_ordem_rec(no->left, action);
-        pos_ordem_rec(no->right, action);
-        action(no->data);
-    }
-}
-
-
-Arvore* arvore_create(CompareFunc cmp, ActionFunc free_data) 
-{
-    Arvore *arv = (Arvore*) malloc(sizeof(Arvore));
-    if (arv) {
-        arv->root = NULL;
-        arv->tamanho = 0;
-        arv->cmp = cmp;
-        arv->free_data = free_data;
-    }
-    return arv;
-}
-
-void arvore_destroy(Arvore *arvore) 
-{
-    if (arvore) {
-        destruir_rec(arvore->root, arvore->free_data);
-        free(arvore);
-    }
-}
-
-void arvore_insert(Arvore *arvore, void *data) 
-{
-    if (arvore) {
-        int incrementou = 0;
-        arvore->root = inserir_rec(arvore->root, data, arvore->cmp, &incrementou);
-        if (incrementou) arvore->tamanho++;
-    }
-}
-
-void* arvore_remove(Arvore *arvore, void *key) 
-{
-    if (!arvore || !arvore->root) return NULL;
-    
-    void *dado_removido = NULL;
-    int decrementou = 0;
-    
-    arvore->root = remover_rec(arvore->root, key, arvore->cmp, &dado_removido, &decrementou);
-    
-    if (decrementou) arvore->tamanho--;
-    
-    return dado_removido;
-}
-
-void* arvore_search(Arvore *arvore, void *key) 
-{
-    if (arvore) return buscar_rec(arvore->root, key, arvore->cmp);
-    return NULL;
-}
-
-int arvore_getHeight(Arvore *arvore) {return arvore ? altura_no(arvore->root) : -1;}
-
-int arvore_getSize(Arvore *arvore) {return arvore ? arvore->tamanho : 0;}
-
-bool arvore_isEmpty(Arvore *arvore) {return arvore ? (arvore->tamanho == 0) : true;}
-
-void* arvore_get_root_data(Arvore *arvore) {
-    if (arvore && arvore->root) {
-        return arvore->root->data; 
-    }
-    return NULL;
-}
-
-void* arvore_get_min(Arvore *arvore) {
-    if (arvore == NULL || arvore->root == NULL) {
+void *binary_search(arvore *t, void *key) {
+    if (t == NULL || t -> root == NULL) {
         return NULL;
     }
 
-    Node *atual = arvore->root;
-    
-    while (atual->left != NULL) {
-        atual = atual->left;
+    node_AVL *current = t -> root;
+
+    while (current != NULL) {
+        int comparacao = t -> cmp_data(key, current -> data);
+
+        if (comparacao == 0) {
+            return current -> data;
+        }
+
+        if (comparacao < 0) {
+            current = current -> esquerda;
+        }
+
+        else {
+            current = current -> direita;
+        }
     }
 
-    return atual->data;
+    return NULL;
 }
 
-void* arvore_get_max(Arvore *arvore) {
-    if (arvore == NULL || arvore->root == NULL) {
+static node_AVL *find_min(node_AVL *node) {
+    if (node == NULL) return NULL;
+
+    if (node -> esquerda == NULL) return node;
+    return find_min(node -> esquerda);
+}
+
+static node_AVL *remove_node_recursivo(arvore *t, node_AVL *root, void *key, void **removed_data) {
+    if (root == NULL) {
+        *removed_data = NULL;
         return NULL;
     }
 
-    Node *atual = arvore->root;
+    if (key == NULL) return NULL;
 
-    while (atual->right != NULL) {
-        atual = atual->right;
+    int cmp = t -> cmp_data(key, root -> data);
+
+    if (cmp < 0) {
+        root -> esquerda = remove_node_recursivo(t, root -> esquerda, key, removed_data);
+    } else if (cmp > 0) {
+        root -> direita = remove_node_recursivo(t, root -> direita, key, removed_data);
+    } else {
+        *removed_data = root -> data;
+
+        if (root -> esquerda == NULL) {
+            node_AVL *temp = root -> direita;
+            free(root);
+            t -> tamanho--;
+            return temp;
+        }
+        if (root -> direita == NULL) {
+            node_AVL *temp = root -> esquerda;
+            free(root);
+            t -> tamanho--;
+            return temp;
+        }
+
+        void *original_data = root -> data;
+        node_AVL *sucessor = find_min(root -> direita);
+        root -> data = sucessor -> data;
+
+        void *r = NULL;
+        root -> direita = remove_node_recursivo(t, root -> direita, sucessor -> data, &r);
+
+        *removed_data = original_data;
     }
 
-    return atual->data;
+
+    root -> altura = recalc_altura(root);
+    root = balancear(root);
+
+    return root;
 }
 
-void avl_em_ordem(Arvore *arvore, ActionFunc action) {if (arvore) em_ordem_rec(arvore->root, action);}
+void *remove_node(arvore *t, void *key) {
+    if (t == NULL || key == NULL) {
+        return NULL;
+    }
 
-void avl_pre_ordem(Arvore *arvore, ActionFunc action) {if (arvore) pre_ordem_rec(arvore->root, action);}
+    void *removed_data = NULL;
 
-void avl_pos_ordem(Arvore *arvore, ActionFunc action) {if (arvore) pos_ordem_rec(arvore->root, action);}
+    t -> root = remove_node_recursivo(t, t -> root, key, &removed_data);
+
+
+    return removed_data;
+}
+
+static void in_order_recursivo(arvore *t, node_AVL *root) {
+    if (root == NULL) return;
+
+    in_order_recursivo(t, root -> esquerda);
+    t -> print_data(root -> data);
+    in_order_recursivo(t, root -> direita);
+}
+
+void in_order(arvore *t) {
+    in_order_recursivo(t, t -> root);
+}
+
+static void free_nodes_recursivo(arvore *t, node_AVL *node) {
+    if (node == NULL) {
+        return;
+    }
+
+    free_nodes_recursivo(t, node -> esquerda);
+    free_nodes_recursivo(t, node -> direita);
+
+    if (t -> free_data != NULL) {
+        t -> free_data(node -> data);
+    }
+
+    free(node);
+}
+
+void free_arvore(arvore *t) {
+    if (t == NULL) {
+        return;
+    }
+
+    free_nodes_recursivo(t, t -> root);
+
+    free(t);
+}
