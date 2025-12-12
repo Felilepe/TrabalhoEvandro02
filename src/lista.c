@@ -133,6 +133,24 @@ item lista_remove_fim(Lista *l)
     return itemRetornar;
 }
 
+item lista_getHead(Lista *l)
+{
+    if (l == NULL || lista_isEmpty(l)) {
+        printf("Erro: Tentativa de acesso ao head de lista vazia ou nula em lista_getHead.");
+        exit(1);
+    }
+    return l->head->data;
+}
+
+item lista_getTail(Lista *l)
+{
+    if (l == NULL || lista_isEmpty(l)) {
+        printf("Erro: Tentativa de acesso ao tail de lista vazia ou nula em lista_getTail.");
+        exit(1);
+    }
+    return l->tail->data;
+}
+
 void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data)
 {
     if (l == NULL || acao == NULL || lista_isEmpty(l)) {

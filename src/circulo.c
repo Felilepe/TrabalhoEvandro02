@@ -106,7 +106,7 @@ void circulo_destroy(Circulo c)
 
 
 
-Anteparo circulo_anteparo(Circulo c, char orientacao, int *ant_id)
+Anteparo circulo_anteparo(Circulo c, char orientacao, int ant_id)
 {
     circulo* circ = (circulo*) c;
     
@@ -117,12 +117,12 @@ Anteparo circulo_anteparo(Circulo c, char orientacao, int *ant_id)
 
     switch(orientacao){
         case 'H': case 'h': {
-            return anteparo_create(++(*ant_id), (circ -> x - circ -> r), circ -> y, 
+            return anteparo_create(++(ant_id), (circ -> x - circ -> r), circ -> y, 
             (circ -> x + circ -> r), circ -> y, circulo_getCorBorda(c));
             break;
         }
         case 'V': case 'v': {
-            return anteparo_create(++(*ant_id), circ -> x, (circ -> y - circ -> r), 
+            return anteparo_create(++(ant_id), circ -> x, (circ -> y - circ -> r), 
             circ -> x, (circ -> y + circ -> r), circulo_getCorBorda(c));
             break;
         }

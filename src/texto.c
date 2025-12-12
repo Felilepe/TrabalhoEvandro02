@@ -287,7 +287,7 @@ Linha conversaoTxtoLinha(Texto t)
 
 
 
-Anteparo texto_anteparo(Texto t, int *ant_id)
+Anteparo texto_anteparo(Texto t, int ant_id)
 {
     texto *txto = (texto*)t;
     if(txto == NULL || ant_id == NULL){

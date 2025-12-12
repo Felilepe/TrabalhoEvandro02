@@ -47,12 +47,12 @@ static int get_altura_node(node_AVL *n) {
     return n -> altura;
 }
 
-int get_altura_arvore(arvore *t) {
+int arvore_getHeight(arvore *t) {
     if (t == NULL || t -> root == NULL) return -1;
     return get_altura_node(t -> root);
 }
 
-int get_tam_AVL(arvore *t) {
+arvore_getSize(arvore *t) {
     return t -> tamanho;
 }
 

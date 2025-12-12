@@ -9,6 +9,7 @@
 typedef struct 
 {
     double x, y;
+    int index;
 } Vertice;
 
 typedef struct 
@@ -16,6 +17,7 @@ typedef struct
     Lista* vertices;    
     double minX, minY;  
     double maxX, maxY;
+    bool boundingBoxValid;
 } poligono;
 
 
@@ -37,6 +39,7 @@ Poligono poligono_create()
     return (Poligono) p;
 }
 
+
 void poligono_insertPoint(Poligono p, double xp, double yp) 
 {
     poligono* poly = (poligono*) p;
@@ -45,8 +48,9 @@ void poligono_insertPoint(Poligono p, double xp, double yp)
     v->x = xp;
     v->y = yp;
     
-
+    
     lista_insere_inicio(poly->vertices, v); 
+    v -> index = lista_getSize(poly->vertices);
 
     if (xp < poly->minX) poly->minX = xp;
     if (xp > poly->maxX) poly->maxX = xp;
@@ -54,6 +58,7 @@ void poligono_insertPoint(Poligono p, double xp, double yp)
     if (yp > poly->maxY) poly->maxY = yp;
 }
 
+//
 static Vertice** listaParaArray(Lista* l, int* tamanho) 
 {
     int n = lista_getSize(l);
@@ -98,6 +103,38 @@ bool poligono_isInside(Poligono p, double xp, double yp)
     return c;
 }
 
+
+
+void poligono_calcBoundingBox(Poligono p)
+{
+    poligono* poly = (poligono*) p;
+
+    if (poly->boundingBoxValid) return;
+
+    int n = 0;
+    Vertice** v = listaParaArray(poly->vertices, &n);
+    if (v == NULL || n == 0) {
+        free(v);
+        poly->minX = poly->minY = poly->maxX = poly->maxY = 0.0;
+        poly->boundingBoxValid = true;
+        return;
+    }
+
+    poly->minX = poly->maxX = v[0]->x;
+    poly->minY = poly->maxY = v[0]->y;
+
+    for (int i = 1; i < n; i++) {
+        if (v[i]->x < poly->minX) poly->minX = v[i]->x;
+        if (v[i]->x > poly->maxX) poly->maxX = v[i]->x;
+        if (v[i]->y < poly->minY) poly->minY = v[i]->y;
+        if (v[i]->y > poly->maxY) poly->maxY = v[i]->y;
+    }
+
+    free(v);
+    poly->boundingBoxValid = true;
+}
+
+
 void poligono_getBoundingBox(Poligono p, double *xMin, double *yMin, double *xMax, double *yMax) 
 {
     poligono* poly = (poligono*) p;
@@ -112,7 +149,41 @@ Lista* poligono_getVertices(Poligono p)
     return ((poligono*)p)->vertices;
 }
 
+int poligono_getNumVertices(Poligono p) 
+{
+    poligono* poly = (poligono*) p;
+    return lista_getSize(poly->vertices);
+}
 
+double poligono_getXVertice(Poligono p, int index) 
+{
+    poligono* poly = (poligono*) p;
+    int n = 0;
+    Vertice** v = listaParaArray(poly->vertices, &n);
+    if (index < 0 || index >= n) {
+        free(v);
+        fprintf(stderr, "Índice de vértice inválido.\n");
+        exit(EXIT_FAILURE);
+    }
+    double x = v[index]->x;
+    free(v);
+    return x;
+}
+
+double poligono_getYVertice(Poligono p, int index) 
+{
+    poligono* poly = (poligono*) p;
+    int n = 0;
+    Vertice** v = listaParaArray(poly->vertices, &n);
+    if (index < 0 || index >= n) {
+        free(v);
+        fprintf(stderr, "Índice de vértice inválido.\n");
+        exit(EXIT_FAILURE);
+    }
+    double y = v[index]->y;
+    free(v);
+    return y;
+}
 
 Lista* poligono_getSegmentos(Poligono p) 
 {

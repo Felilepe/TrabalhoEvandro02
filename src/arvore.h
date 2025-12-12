@@ -34,14 +34,14 @@ node_AVL *arvore_getRoot(arvore *t);
 *@param t Ponteiro para a árvore.
 *@return Altura da árvore.
 ******************************************************************/
-int get_altura_arvore(arvore *t);
+int arvore_getHeight(arvore *t);
 
 /******************************************************************
 *@brief Obtém o número total de nós na árvore.
 *@param t Ponteiro para a árvore.
 *@return Tamanho da árvore.
 ******************************************************************/
-int get_tam_AVL(arvore *t);
+int arvore_getSize(arvore *t);
 
 /******************************************************************
 *@brief Obtém o filho esquerdo de um nó.
@@ -63,6 +63,9 @@ node_AVL *get_direita_node(node_AVL *n);
 *@return Dados do nó.
 ******************************************************************/
 void *get_node_dataAVL(node_AVL *n);
+
+int arvore_getSize(arvore *t);
+
 
 /******************************************************************
 *@brief Verifica se a árvore está vazia.

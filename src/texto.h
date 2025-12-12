@@ -206,7 +206,7 @@ Linha conversaoTxtoLinha(Texto t);
 * @param ant_id Ponteiro para o ID do anteparo.
 * @return Retorna o anteparo criado.
 ****************************************************************************************/
-Anteparo texto_anteparo(Texto t, int *ant_id);
+Anteparo texto_anteparo(Texto t, int ant_id);
 
 
 #endif

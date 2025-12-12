@@ -127,6 +127,6 @@ void circulo_destroy(Circulo c);
 * @param ant_id Ponteiro para o ID do anteparo.
 * @return Retorna o anteparo criado.
 ****************************************************************************************/
-Anteparo circulo_anteparo(Circulo c, char orientacao, int *ant_id);
+Anteparo circulo_anteparo(Circulo c, char orientacao, int ant_id);
 
 #endif

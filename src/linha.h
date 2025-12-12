@@ -135,7 +135,7 @@ void linha_destroy(Linha l);
 * @param ant_id Ponteiro para o ID do anteparo.
 * @return Retorna o anteparo criado.
 ****************************************************************************************/
-Anteparo linha_anteparo(Linha l, int *ant_id);
+Anteparo linha_anteparo(Linha l, int ant_id);
 
 
 #endif

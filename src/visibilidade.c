@@ -12,6 +12,8 @@
 #include "poligono.h"
 #include "retangulo.h"
 #include "anteparo.h"
+#include "geometria.h"
+#include "lista.h"
 
 #define EPSILON 1e-10
 #define PI 3.14159265358
@@ -35,95 +37,6 @@ typedef struct stSegmento_ativo
     int id;
     double dist_bomba;
 } segmento_ativo;
-
-// FUNÇÕES AUXILIARES GEOMÉTRICAS
-
-static double calcula_angulo(double x_obs, double y_obs, double x_p, double y_p) 
-{
-
-    double angulo = atan2(y_p - y_obs, x_p - x_obs);
-    if (angulo < 0) {
-        angulo += 2.0 * PI;
-    }
-
-    return angulo;
-}
-
-static double distancia_quadrada(double x1, double y1, double x2, double y2) 
-{
-    double deltaX = x1 - x2;
-    double deltaY = y1 - y2;
-    return (deltaX * deltaX) + (deltaY * deltaY);
-}
-
-static int produto_vetorial(double px, double py, double qx, double qy, double rx, double ry) 
-{
-    double val = (qx - px) * (ry - py) - (qy - py) * (rx - px);
-    if (fabs(val) < 1e-10) return 0;
-    return (val > 0) ? 1 : 2;
-}
-
-static bool is_ponto_no_segmento(double px, double py, double qx, double qy, double rx, double ry) {
-    return (qx <= fmax(px, rx) && qx >= fmin(px, rx) && qy <= fmax(py, ry) && qy >= fmin(py, ry));
-}
-
-double calcular_distancia_ponto_segmento(double px, double py, Anteparo a) 
-{
-    double x1 = anteparo_getX1(a);
-    double y1 = anteparo_getY1(a);
-    double x2 = anteparo_getX2(a);
-    double y2 = anteparo_getY2(a);
-
-    double dx = x2 - x1;
-    double dy = y2 - y1;
-
-    double len_sq = dx * dx + dy * dy;
-    if (fabs(len_sq) < EPSILON) {
-        return sqrt(distancia_quadrada(px, py, x1, y1));
-    }
-
-    double t = ((px - x1) * dx + (py - y1) * dy) / len_sq;
-
-    t = fmax(0.0, fmin(1.0, t));
-
-    double proj_x = x1 + t * dx;
-    double proj_y = y1 + t * dy;
-
-    return sqrt(distancia_quadrada(px, py, proj_x, proj_y));
-}
-
-double calc_dist_anteparo_bomba(Anteparo a, double x_bomba, double y_bomba, double angulo, double raio_max) 
-{
-    if (a == NULL) return DBL_MAX;
-
-
-    double rx = x_bomba + raio_max * cos(angulo);
-    double ry = y_bomba + raio_max * sin(angulo);
-
-
-    double s1x = anteparo_getX1(a);
-    double s1y = anteparo_getY1(a);
-    double s2x = anteparo_getx2(a);
-    double s2y = anteparo_getY2(a);
-
-    double denom = (s2y - s1y) * (rx - x_bomba) - (s2x - s1x) * (ry - y_bomba);
-
-    if (fabs(denom) < EPSILON) return DBL_MAX;
-
-    double ua = ((s2x - s1x) * (y_bomba - s1y) - (s2y - s1y) * (x_bomba - s1x)) / denom;
-    double ub = ((rx - x_bomba) * (y_bomba - s1y) - (ry - y_bomba) * (x_bomba - s1x)) / denom;
-
-    if (ua >= -EPSILON && ua <= 1.0 + EPSILON && ub >= -EPSILON && ub <= 1.0 + EPSILON) {
-        double dist = ua * raio_max;
-
-        if (dist >= -EPSILON && dist <= raio_max + EPSILON) {
-            return (dist < 0) ? 0 : dist;
-        }
-    }
-    return DBL_MAX;
-}
-
-
 
 //FUNÇÕES AUXILIARES DE EVENTOS DE VISIBILIDADE
 
@@ -170,29 +83,25 @@ static int comparar_segmentos_ativos(const void *a, const void *b)
     return 0;
 }
 
-static void buscar_intersecao_avl_rec(node_AVL *node, double x_bomba, double y_bomba, double angulo, double *dist_min, ponto **ponto_intersecao, double raio_max) 
+static void buscar_intersecao_avl_rec(node_AVL *node, double x_bomba, double y_bomba, double angulo, double *dist_min, double *x_intersecao, double *y_intersecao, double raio_max) 
 {
     if (node == NULL) return;
 
-    buscar_intersecao_avl_rec(get_esquerda_node(node), bomba, angulo, dist_min, ponto_intersecao, raio_max);
+    buscar_intersecao_avl_rec(get_esquerda_node(node), x_bomba, y_bomba, angulo, dist_min, x_intersecao, y_intersecao, raio_max);
 
     segmento_ativo *sa = (segmento_ativo*)get_node_dataAVL(node);
-    double dist = calc_dist_anteparo_bomba(sa -> seg, bomba, angulo, raio_max);
+    double dist = geometria_calcDistAnteBmb(sa -> seg, x_bomba, y_bomba, angulo, raio_max);
 
     if (dist < *dist_min) {
         *dist_min = dist;
-
-        if (*ponto_intersecao != NULL) free_ponto(*ponto_intersecao);
-        double x = get_x_ponto(bomba) + dist * cos(angulo);
-        double y = get_y_ponto(bomba) + dist * sin(angulo);
-
-        *ponto_intersecao = init_ponto(x, y);
+        *x_intersecao = x_bomba + dist * cos(angulo);
+        *y_intersecao = y_bomba + dist * sin(angulo);
     }
 
-    buscar_intersecao_avl_rec(get_direita_node(node), bomba, angulo, dist_min, ponto_intersecao, raio_max);
+    buscar_intersecao_avl_rec(get_direita_node(node), x_bomba, y_bomba, angulo, dist_min, x_intersecao, y_intersecao, raio_max);
 }
 
-static void update_evento_arvore(Arvore *seg_ativo, evento *e) 
+static void update_evento_arvore(arvore *seg_ativo, evento *e) 
 {
     if (e -> tipo_evento == INICIO) {
         segmento_ativo *novo_ativo = malloc(sizeof(segmento_ativo));
@@ -213,19 +122,81 @@ static void update_evento_arvore(Arvore *seg_ativo, evento *e)
     }
 }
 
-static void capturar_ponto_visibilidade(Poligono vis, Arvore *seg_ativos, double x_bomba, double y_bomba, double angulo, double raio_max) 
+static void capturar_ponto_visibilidade(Poligono vis, arvore *seg_ativos, double x_bomba, double y_bomba, double angulo, double raio_max) 
 {
-    ponto *p = raio_ate_anteparo_avl(seg_ativos, bomba, angulo, raio_max);
-    if (p != NULL) {
-        if (validar_ponto(p, bomba)) {
-            ponto *ultimo = get_ultimo_vertice(vis);
-            if (!ultimo || dist_pontos(p, bomba)) {
-                insert_ponto_poligono(vis, p);
+    double x_intersecao = x_bomba + raio_max * cos(angulo);
+    double y_intersecao = y_bomba + raio_max * sin(angulo);
+    double dist_min = raio_max;
+    
+    buscar_intersecao_avl_rec(arvore_getRoot(seg_ativos), x_bomba, y_bomba, angulo, &dist_min, &x_intersecao, &y_intersecao, raio_max);
+    
+    Lista *vertices = poligono_getVertices(vis);
+    
+    if (vertices == NULL || lista_isEmpty(vertices)) {
+        poligono_insertPoint(vis, x_intersecao, y_intersecao);
+    } else {
+        item primeiro = lista_getHead(vertices);
+        if (primeiro != NULL) {
+            typedef struct { double x, y; } VerticeGenerico;
+            VerticeGenerico *v = (VerticeGenerico*)primeiro;
+            double dist_sq = (x_intersecao - v->x) * (x_intersecao - v->x) + 
+                            (y_intersecao - v->y) * (y_intersecao - v->y);
+            
+            if (dist_sq > EPSILON) {
+                poligono_insertPoint(vis, x_intersecao, y_intersecao);
             }
         }
-            free_ponto(p);
     }
 }
+
+
+
+typedef struct 
+{
+    evento *vetor_eventos;
+    int *k;
+    double x_bomba, y_bomba;
+} dados_prepare;
+
+static void processar_anteparo_callback(forma f, item aux_data)
+{
+    dados_prepare *dp = (dados_prepare*)aux_data;
+    if (f == NULL) return;
+    
+    Anteparo a = lista_getHead(forma_anteparo(f, forma_getID(f), 'H'));
+    double x_bomba = dp -> x_bomba;
+    double y_bomba = dp -> y_bomba;
+    
+    double ang1 = normalizar_angulo(geometria_calcAngulo(x_bomba, y_bomba, anteparo_getX1(a), anteparo_getY1(a)));
+    double ang2 = normalizar_angulo(geometria_calcAngulo(x_bomba, y_bomba, anteparo_getX2(a), anteparo_getY2(a)));
+    
+    if (fabs(ang1 - ang2) < 1e-9) {
+        ang2 += 1e-8;
+    }
+    
+    double diff = ang2 - ang1;
+    if (diff < 0) diff += 2.0 * PI;
+    
+    if (diff > PI) {
+        double temp = ang1;
+        ang1 = ang2;
+        ang2 = temp;
+    }
+    
+    double dist = geometria_calcDistPointSeg(x_bomba, y_bomba, a);
+    int id = anteparo_getId(a);
+    
+    if (ang1 > ang2) {
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, ang1, dist, INICIO, a};
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, PI, dist, FIM, a};
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, 0.0, dist, INICIO, a};
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, ang2, dist, FIM, a};
+    } else {
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, ang1, dist, INICIO, a};
+        dp->vetor_eventos[(*dp->k)++] = (evento){id, ang2, dist, FIM, a};
+    }
+}
+
 
 
 // FUNÇÕES PRINCIPAIS
@@ -237,50 +208,13 @@ Evento visibilidade_prepare(double x_bomba, double y_bomba, Lista *anteparos, in
         exit(1);
     }
 
-    int size_lista = get_tam_lista(anteparos);
+    int size_lista = lista_getSize(anteparos);
     int max_eventos = 4 * size_lista;
     evento *vetor_eventos = malloc(max_eventos * sizeof(evento));
 
-    node *atual = get_head_node(anteparos);
     int k = 0;
-
-    while (atual != NULL) {
-        forma *f = get_node_data(atual);
-        Anteparo *a = get_dados_forma(f);
-
-        double ang1 = normalizar_angulo(calcula_angulo(x_bomba, y_bomba, anteparo_getX1(a), anteparo_getY1(a)));
-        double ang2 = normalizar_angulo(calcula_angulo(x_bomba, y_bomba, anteparo_getX2(a), anteparo_getY2(a)));
-
-        if (fabs(ang1 - ang2) < 1e-9) {
-            ang2 += 1e-8;
-        }
-
-        double diff = ang2 - ang1;
-        if (diff < 0) diff += 2.0 * PI;
-
-        if (diff > PI) {
-            double temp = ang1;
-            ang1 = ang2;
-            ang2 = temp;
-        }
-
-        double dist = calcular_distancia_ponto_segmento(x_bomba, y_bomba, a);
-        int id = anteparo_getId(a);
-
-        if (ang1 > ang2) {
-            vetor_eventos[k++] = (evento){id, ang1, dist, INICIO, a};
-            vetor_eventos[k++] = (evento){id, PI, dist, FIM, a};
-
-            vetor_eventos[k++] = (evento){id, 0.0, dist, INICIO, a};
-            vetor_eventos[k++] = (evento){id, ang2, dist, FIM, a};
-        }
-
-        else {
-            vetor_eventos[k++] = (evento){id, ang1, dist, INICIO, a};
-            vetor_eventos[k++] = (evento){id, ang2, dist, FIM, a};
-        }
-        atual = go_next_node(atual);
-    }
+    dados_prepare dp = {vetor_eventos, &k, x_bomba, y_bomba};
+    lista_passthrough(anteparos, processar_anteparo_callback, (item)&dp);
 
     *num_eventos = k;
     return vetor_eventos;
@@ -288,118 +222,114 @@ Evento visibilidade_prepare(double x_bomba, double y_bomba, Lista *anteparos, in
 
 
 
-double visibilidade_getXRay(Arvore *segmentos_visiveis, double x_origem, double y_origem, double angulo, double max_dist)
+double visibilidade_getXRay(arvore *segmentos_visiveis, double x_origem, double y_origem, double angulo, double max_dist)
 {
     if (arvore_getSize(segmentos_visiveis) == 0) {
         double x = x_origem + max_dist * cos(angulo);
         return x;
     }
 
-    ponto *p_intersecao = NULL;
+    double x_intersecao = x_origem + max_dist * cos(angulo);
+    double y_intersecao = y_origem + max_dist * sin(angulo);
     double dist_min = max_dist;
-    buscar_intersecao_avl_rec(arvore_get_root_data(segmentos_visiveis), x_origem, y_origem, angulo, &dist_min, &p_intersecao, max_dist);
-    if (p_intersecao != NULL) return p_intersecao;
-
-    double x =  x_origem + max_dist * cos(angulo);
-    return x;
+    buscar_intersecao_avl_rec(arvore_getRoot(segmentos_visiveis), x_origem, y_origem, angulo, &dist_min, &x_intersecao, &y_intersecao, max_dist);
+    
+    return x_intersecao;
 }
 
-double visibilidade_getYRay(Arvore *segmentos_visiveis, double x_origem, double y_origem, double angulo, double max_dist)
+double visibilidade_getYRay(arvore *segmentos_visiveis, double x_origem, double y_origem, double angulo, double max_dist)
 {
     if (arvore_getSize(segmentos_visiveis) == 0) {
         double y = y_origem + max_dist * sin(angulo);
         return y;
     }
 
-    ponto *p_intersecao = NULL;
+    double x_intersecao = x_origem + max_dist * cos(angulo);
+    double y_intersecao = y_origem + max_dist * sin(angulo);
     double dist_min = max_dist;
-    buscar_intersecao_avl_rec(arvore_get_root_data(segmentos_visiveis), x_origem, y_origem, angulo, &dist_min, &p_intersecao, max_dist);
-    if (p_intersecao != NULL) return p_intersecao;
+    buscar_intersecao_avl_rec(arvore_getRoot(segmentos_visiveis), x_origem, y_origem, angulo, &dist_min, &x_intersecao, &y_intersecao, max_dist);
+    
+    return y_intersecao;
+}
 
-    double y = y_origem + max_dist * sin(angulo);
-    return y;
+static void adicionar_parede_callback(item i, item aux_data)
+{
+    forma *f = (forma*)i;
+    struct { Lista *anteparos; int *qtd; } *dados = (struct { Lista *anteparos; int *qtd; }*)aux_data;
+    
+    if (f != NULL) {
+        lista_insere_fim(dados->anteparos, f);
+        (*dados->qtd)++;
+    }
 }
 
 Poligono visibilidade_calc(double x_bomba, double y_bomba, Lista *anteparos, char tipo_ord, double max_dist, int insert_limit)
 {
-    Poligono *visibilidade = poligono_create();
+    Poligono visibilidade = poligono_create();
 
-    Retangulo *box_mundo = criaRetangulo(-1, 5, 5, 1010, 1010, "none", "none");
-    forma *f_box = cria_forma(-1, TIPO_R, box_mundo);
-    Lista *paredes_mundo = forma_anteparo(f_box, 'h');
+    Retangulo box_mundo = retangulo_create(-1, 5, 5, 1010, 1010, "none", "none");
+    forma f_box = forma_clonar(box_mundo);
+    Lista *paredes_mundo = forma_anteparo(f_box, retangulo_getID(box_mundo), 'h');
 
     int qtd_paredes = 0;
-    node *aux = get_head_node(paredes_mundo);
-    while(aux != NULL) {
-        forma *f = get_node_data(aux);
-        insert_tail(anteparos, f);
-        qtd_paredes++;
-        aux = go_next_node(aux);
-    }
+    struct { Lista *anteparos; int *qtd; } dados_paredes = {anteparos, &qtd_paredes};
+    lista_passthrough(paredes_mundo, adicionar_parede_callback, (item)&dados_paredes);
 
     int num_eventos = 0;
-    evento *eventos = preparar_segmentos(bomba, anteparos, &num_eventos);
+    evento *eventos = visibilidade_prepare(x_bomba, y_bomba, anteparos, &num_eventos);
 
-    // 2. CASO SEM NENHUM ANTEPARO -> SIMPLESMENTE CRIA UM CÍRCULO QUE ABRANGE A ÁREA TODA
     if (num_eventos == 0) {
         for (int i = 0; i < 32; i++) {
             double ang = (2.0 * PI * i) / 32.0;
-            double x = get_x_ponto(bomba) + raio_max * cos(ang);
-            double y = get_y_ponto(bomba) + raio_max * sin(ang);
-            insert_vertice(visibilidade, x, y);
+            double x = x_bomba + max_dist * cos(ang);
+            double y = y_bomba + max_dist * sin(ang);
+            poligono_insertPoint(visibilidade, x, y);
         }
         free(eventos); return visibilidade;
     }
 
-    // 3. ORDENAÇÃO -> ORDENA OS EVENTOS CONFORME O ÂNGULO OBTIDO ENTRE O PONTO DA BOMBA E O PONTO (p0 ou p1) DO ANTEPARO
     if (tipo_ord == 'm') {
-        merge_sort_generico(eventos, num_eventos, sizeof(evento), cmp_eventos, threshold_i);
+        qsort(eventos, num_eventos, sizeof(evento), cmp_eventos);
     } else {
         qsort(eventos, num_eventos, sizeof(evento), cmp_eventos);
     }
 
-    Arvore *seg_ativos = init_arvore(comparar_segmentos_ativos, free_segmento_ativo, NULL);
+    arvore *seg_ativos = arvore_create(comparar_segmentos_ativos, free_segmento_ativo, NULL);
 
-    // 4. PRÉ-CARREGAMENTO (Segmentos que cruzam o zero)
     for (int i = 0; i < num_eventos; i++) {
-        if (eventos[i].tipo == INICIO && eventos[i].angulo < EPSILON_ANGULAR) {
+        if (eventos[i].tipo_evento == INICIO && eventos[i].angulo < EPSILON_ANGULAR) {
             update_evento_arvore(seg_ativos, &eventos[i]);
         }
     }
 
-    // 5. SWEEP LINE
     printf("Iniciando algoritmo de sweep line...\n");
     for (int i = 0; i < num_eventos; i++) {
         evento *atual = &eventos[i];
-        bool ja_processado_no_inicio = (atual->tipo == INICIO && atual -> angulo < EPSILON_ANGULAR);
+        bool ja_processado_no_inicio = (atual->tipo_evento == INICIO && atual -> angulo < EPSILON_ANGULAR);
 
-        // Disparo ANTES (Captura estado atual / parede de fundo)
-        capturar_ponto_visibilidade(visibilidade, seg_ativos, bomba, atual -> angulo, raio_max);
+        capturar_ponto_visibilidade(visibilidade, seg_ativos, x_bomba, y_bomba, atual -> angulo, max_dist);
 
-        // Atualização
         if (!ja_processado_no_inicio) {
             update_evento_arvore(seg_ativos, atual);
         }
 
-        // Disparo DEPOIS (Captura novo estado / quina do obstáculo)
-        capturar_ponto_visibilidade(visibilidade, seg_ativos, bomba, atual -> angulo, raio_max);
+        capturar_ponto_visibilidade(visibilidade, seg_ativos, x_bomba, y_bomba, atual -> angulo, max_dist);
     }
 
-    // 6. LIMPEZA
     for(int i = 0; i < qtd_paredes; i++) {
-        remove_tail(anteparos);
+        item parede = lista_remove_fim(anteparos);
+        if (parede != NULL) forma_destroy((forma)parede);
     }
 
-    free_lista(paredes_mundo, (void(*)(void*))destrutor_forma);
-    free(f_box);
-    destrutorRetangulo(box_mundo);
+    lista_destroy(paredes_mundo);
+    forma_destroy(f_box);
+    retangulo_destroy(box_mundo);
 
     free(eventos);
     free_arvore(seg_ativos);
 
-    // 7. CALCULA A BOUNDING BOX DO POLÍGONO PARA OTIMIZAÇÃO DO ALGORITMO DE CÁLCULO DE SOBREPOSIÇÃO
-    if (get_num_vertices(visibilidade) > 0) {
-        calcular_bounding_box(visibilidade);
+    if (poligono_getNumVertices(visibilidade) > 0) {
+        poligono_calcBoundingBox(visibilidade);
     }
 
     return visibilidade;

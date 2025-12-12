@@ -142,6 +142,6 @@ void retangulo_destroy(Retangulo r);
 * @param ant_id Ponteiro para o ID do anteparo.
 * @return Retorna a  lista de anteparos criados.
 ****************************************************************************************/
-Lista *retangulo_anteparo(Retangulo r, int *ant_id);
+Lista *retangulo_anteparo(Retangulo r, int ant_id);
 
 #endif

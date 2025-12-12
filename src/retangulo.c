@@ -107,16 +107,16 @@ void retangulo_destroy(Retangulo r)
 
 
 
-Lista *retangulo_anteparo(Retangulo r, int *ant_id)
+Lista *retangulo_anteparo(Retangulo r, int ant_id)
 {
     retangulo *rect = (retangulo*) r;
     Lista *anteparos = init_lista();
 
     Anteparo *lados[4] = {
-        init_anteparo(++(*ant_id), rect -> x, rect -> y, rect -> x + rect -> w, rect -> y, rect -> corborda),
-        init_anteparo(++(*ant_id), rect -> x,  0, rect -> x, rect -> y + rect -> h, rect -> corborda),
-        init_anteparo(++(*ant_id), rect -> x + rect -> w, rect -> y, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda),
-        init_anteparo(++(*ant_id), rect -> x, rect -> y + rect -> h, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda)
+        init_anteparo(++(ant_id), rect -> x, rect -> y, rect -> x + rect -> w, rect -> y, rect -> corborda),
+        init_anteparo(++(ant_id), rect -> x,  0, rect -> x, rect -> y + rect -> h, rect -> corborda),
+        init_anteparo(++(ant_id), rect -> x + rect -> w, rect -> y, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda),
+        init_anteparo(++(ant_id), rect -> x, rect -> y + rect -> h, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda)
     };
 
     for (int i = 0; i < 4; i++) {

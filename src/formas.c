@@ -478,7 +478,7 @@ void forma_setCorPreench(forma f, char* corp)
 
 
 
-Lista *forma_anteparo(forma f, int *ant_id, char orientacao)
+Lista *forma_anteparo(forma f, int ant_id, char orientacao)
 {
     FormaG* forma_generica = (FormaG*)f;
 

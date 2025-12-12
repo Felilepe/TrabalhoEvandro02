@@ -99,7 +99,7 @@ void linha_destroy(Linha l)
 
 
 
-Anteparo linha_anteparo(Linha l, int *ant_id)
+Anteparo linha_anteparo(Linha l, int ant_id)
 {
 linha *lin = (linha*)l;
 
@@ -108,5 +108,5 @@ linha *lin = (linha*)l;
         exit(1);
     }
 
-    return anteparo_create(++(*ant_id), lin -> x1, lin -> y1, lin -> x2, lin -> y2, lin -> cor);
+    return anteparo_create(++(ant_id), lin -> x1, lin -> y1, lin -> x2, lin -> y2, lin -> cor);
 }

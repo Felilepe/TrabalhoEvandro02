@@ -5,6 +5,7 @@
 #define TIPO_R 2
 #define TIPO_L 3
 #define TIPO_T 4
+#define TIPO_A 5
 
 #include <stdio.h>
 #include "lista.h"
@@ -141,7 +142,7 @@ void forma_setCorPreench(forma f, char* corp);
 *@param orientacao A orientação do anteparo.
 *@return O(s) anteparo(s) criado(s).
 ******************************************************************/
-Lista *forma_anteparo(forma f, int *ant_id, char orientacao);
+Lista *forma_anteparo(forma f, int ant_id, char orientacao);
 
 
 #endif
