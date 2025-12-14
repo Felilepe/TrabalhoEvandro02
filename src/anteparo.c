@@ -46,7 +46,6 @@ int anteparo_getID(Anteparo a) {return ((anteparo*)a)->id;}
 
 int anteparo_getType(Anteparo a) {return ((anteparo*)a)->type;}
 
-
 double anteparo_getX1(Anteparo a) {return ((anteparo*)a)->x1;}
 
 double anteparo_getY1(Anteparo a) {return ((anteparo*)a)->y1;}
