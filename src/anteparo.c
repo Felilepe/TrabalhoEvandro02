@@ -3,9 +3,11 @@
 #include <string.h>
 #include "anteparo.h"
 
+#define TIPO_A 5
+
 typedef struct AnteparoSt
 {
-    int id;
+    int id, type;
     double x1, y1, x2, y2;
     char *cor;
 } anteparo;
@@ -20,6 +22,7 @@ Anteparo anteparo_create(int id, double x1, double y1, double x2, double y2, con
         exit(EXIT_FAILURE);
     }
     a->id = id;
+    a->type = TIPO_A;
     a->x1 = x1;
     a->y1 = y1;
     a->x2 = x2;
@@ -39,7 +42,10 @@ Anteparo anteparo_create(int id, double x1, double y1, double x2, double y2, con
 
 
 
-int anteparo_getId(Anteparo a) {return ((anteparo*)a)->id;}
+int anteparo_getID(Anteparo a) {return ((anteparo*)a)->id;}
+
+int anteparo_getType(Anteparo a) {return ((anteparo*)a)->type;}
+
 
 double anteparo_getX1(Anteparo a) {return ((anteparo*)a)->x1;}
 

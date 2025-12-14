@@ -6,7 +6,9 @@ typedef void *Anteparo;
 Anteparo anteparo_create(int id, double x1, double y1, double x2, double y2, const char *cor);
 
 
-int anteparo_getId(Anteparo a);
+int anteparo_getID(Anteparo a);
+
+int anteparo_getType(Anteparo a);
 
 double anteparo_getX1(Anteparo a);
 
