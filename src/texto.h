@@ -1,7 +1,5 @@
 #ifndef TEXTO_H
 #define TEXTO_H
-#include "anteparo.h"
-#include "linha.h"
 
 typedef void* Texto;
 
@@ -189,24 +187,5 @@ void texto_setAnchor(Texto t, char a);
 *@param t O texto a ser destruído.
 ******************************************************************/
 void texto_destroy(Texto t);
-
-
-/******************************************************************
-*@brief Cria uma linha utilizando as coordenadas de um texto.
-*@param t O texto original.
-*@return A linha resultante.
-******************************************************************/
-Linha conversaoTxtoLinha(Texto t);
-
-
-
-/****************************************************************************************
-* @brief Converte um texto em um anteparo de acordo com as convenções do projeto.
-* @param t O texto a ser convertido.
-* @param ant_id Ponteiro para o ID do anteparo.
-* @return Retorna o anteparo criado.
-****************************************************************************************/
-Anteparo texto_anteparo(Texto t, int ant_id);
-
 
 #endif

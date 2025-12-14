@@ -1,338 +1,309 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
 #include "colisoes.h"
+#include "formas.h"
 #include "circulo.h"
 #include "retangulo.h"
-#include "linha.h"
 #include "texto.h"
-#include "formas.h"
-#include "poligono.h"
-#include "geometria.h"
-#include "lista.h"
+#include "linha.h"
 
-#include <math.h>
-#define EPSILON 1e-10
+#define TIPO_C 1
+#define TIPO_R 2
+#define TIPO_L 3
+#define TIPO_T 4
 
-static bool colisao_circPoli(Circulo c, Poligono p);
-static bool colisao_retPoli(Retangulo r, Poligono p);
-static bool colisao_linhaPoli(Linha l, Poligono p);
-static bool colisao_txtoPoli(Texto t, Poligono p);
-static bool colisao_antePoli(Anteparo pp, Poligono p);
-
-bool colisao_formaPoli(forma f, Poligono p) 
+static double conversaoCoordTxtoLinhaX1(Texto t) // Converte a coordenada de x de um texto para uma coordenada x1 de uma linha
 {
-    if (f == NULL || p == NULL) return false;
+    double xt = texto_getCoordX(t);
+    int char_count = texto_getCharCount(t);
+    char at = texto_getAnchor(t);
+    double x1;
 
-    int tipo = forma_getType(f);
 
-    switch (tipo) {
-        case TIPO_C: return colisao_circPoli((Circulo)f, p);
-        case TIPO_R: return colisao_retPoli((Retangulo)f, p);
-        case TIPO_L: return colisao_linhaPoli((Linha)f, p);
-        case TIPO_T: return colisao_txtoPoli((Texto)f, p);
-        case TIPO_A: return colisao_antePoli((Anteparo)f, p);
-        default: return false;
+    if (at == 's' || at == 'S' || at == 'l' || at == 'L') at = 'i';
+    if (at == 'e' || at == 'E') at = 'f';
+
+    switch(at){
+        case 'i': x1 = xt; break;
+        case 'm': x1 = xt - 10 * (double)char_count / 2; break;
+        case 'f': x1 = xt - 10 * (double)char_count; break;
+        default:
+            x1 = xt;
+            break;
     }
+
+    return  x1;
 }
 
-static bool ponto_dentro_retangulo(Retangulo r, double px, double py) 
+static double conversaoCoordTxtoLinhaX2(Texto t) // Converte a coordenada de x de um texto para uma coordenada x1 de uma linha
 {
-    double rx = retangulo_getCoordX(r);
-    double ry = retangulo_getCoordY(r);
-    double rw = retangulo_getWidth(r);
-    double rh = retangulo_getHeight(r);
+    double xt = texto_getCoordX(t);
+    int char_count = texto_getCharCount(t);
+    char at = texto_getAnchor(t);
+    double x2;
 
-    return (px >= rx) && (px <= rx + rw) &&
-           (py >= ry) && (py <= ry + rh);
+    if (at == 's' || at == 'S' || at == 'l' || at == 'L') at = 'i';
+    if (at == 'e' || at == 'E') at = 'f';
+
+    switch(at){
+        case 'i': x2 = xt + 10 * (double)char_count; break;
+        case 'm': x2 = xt + 10 * (double)char_count / 2; break;
+        case 'f': x2 = xt; break;
+        default:
+            x2 = xt + 10 * (double)char_count;
+            break;
+    }
+
+    return x2;
 }
 
-static bool ponto_dentro_circulo(Circulo c, double px, double py) 
+static Linha conversaoTxtoLinha(Texto t) //Cria uma linha utilizando as coordenadas de um texto
 {
-    double cx = circulo_getCoordX(c);
-    double cy = circulo_getCoordY(c);
-    double r = circulo_getRaio(c);
+    double x1, x2;
+    double y1, y2;
 
-    return geometria_distSqrd(cx, cy, px, py) <= (r * r);
+    x1 = conversaoCoordTxtoLinhaX1(t);
+    x2 = conversaoCoordTxtoLinhaX2(t);
+    y1 = y2 = texto_getCoordY(t);
+    Linha temp = linha_create(-1, x1, y1, x2, y2, " ", false );
+
+    return temp;
 }
 
-static bool sobrepoe_circulo_linha_texto(Circulo c, Linha l) 
+bool checarColisao(forma f1, forma f2)
 {
-    double cx = circulo_getCoordX(c);
-    double cy = circulo_getCoordY(c);
-    double cr = circulo_getRaio(c);
+    int f1_type = forma_getType(f1);
+    int f2_type = forma_getType(f2);
 
-    double lx1 = linha_getCoordX1(l);
-    double lx2 = linha_getCoordX2(l);
-    double ly1 = linha_getCoordY1(l);
-    double ly2 = linha_getCoordY2(l);
-
-    double distP1Linha = geometria_distSqrd(cx, cy, lx1, ly1);
-    double distP2Linha = geometria_distSqrd(cx, cy, lx2, ly2);
-    double raioAoQuadrado = cr * cr;
-
-    if (distP1Linha <= raioAoQuadrado || distP2Linha <= raioAoQuadrado) {
-        return true;
-    }
-
-    double comprimentoAoQuadrado = geometria_distSqrd(lx1, ly1, lx2, ly2);
-
-    if (comprimentoAoQuadrado == 0.0) {
-        return distP1Linha <= raioAoQuadrado;
-    }
-
-    double t = ((cx - lx1) * (lx2 - lx1) + (cy - ly1) * (ly2 - ly1)) / comprimentoAoQuadrado;
-
-    t = fmax(0.0, fmin(1.0, t));
-
-    double px = lx1 + t * (lx2 - lx1);
-    double py = ly1 + t * (ly2 - ly1);
-    double distanciaAoQuadradoDoCirculo = geometria_distSqrd(cx, cy, px, py);
-
-    return distanciaAoQuadradoDoCirculo <= raioAoQuadrado;
-}
-
-static bool sobrepoe_linha_linha(Linha l1, Linha l2) 
-{
-    double l1x1 = linha_getCoordX1(l1);
-    double l1y1 = linha_getCoordY1(l1);
-    double l1x2 = linha_getCoordX2(l1);
-    double l1y2 = linha_getCoordY2(l1);
-
-    double l2x1 = linha_getCoordX1(l2);
-    double l2y1 = linha_getCoordY1(l2);
-    double l2x2 = linha_getCoordX2(l2);
-    double l2y2 = linha_getCoordY2(l2);
-
-    int o1 = geometria_prodVet(l1x1, l1y1, l1x2, l1y2, l2x1, l2y1);
-    int o2 = geometria_prodVet(l1x1, l1y1, l1x2, l1y2, l2x2, l2y2);
-    int o3 = geometria_prodVet(l2x1, l2y1, l2x2, l2y2, l1x1, l1y1);
-    int o4 = geometria_prodVet(l2x1, l2y1, l2x2, l2y2, l1x2, l1y2);
-
-    if (o1 != o2 && o3 != o4) {
-        return true;
-    }
-
-    if (o1 == 0 && geometria_isPointInSeg(l1x1, l1y1, l2x1, l2y1, l1x2, l1y2)) return true;
-    if (o2 == 0 && geometria_isPointInSeg(l1x1, l1y1, l2x2, l2y2, l1x2, l1y2)) return true;
-    if (o3 == 0 && geometria_isPointInSeg(l2x1, l2y1, l1x1, l1y1, l2x2, l2y2)) return true;
-    if (o4 == 0 && geometria_isPointInSeg(l2x1, l2y1, l1x2, l1y2, l2x2, l2y2)) return true;
-
-    return false;
-}
-
-static bool colisao_retLinha(Retangulo r, Linha l) 
-{
-    double lx1 = linha_getCoordX1(l);
-    double ly1 = linha_getCoordY1(l);
-    double lx2 = linha_getCoordX2(l);
-    double ly2 = linha_getCoordY2(l);
-
-    double rx = retangulo_getCoordX(r);
-    double ry = retangulo_getCoordY(r);
-    double rw = retangulo_getWidth(r);
-    double rh = retangulo_getHeight(r);
-
-    double x_min = rx;
-    double x_max = rx + rw;
-    double y_min = ry;
-    double y_max = ry + rh;
-
-    bool p1_dentro = (lx1 >= x_min - EPSILON && lx1 <= x_max + EPSILON &&
-                      ly1 >= y_min - EPSILON && ly1 <= y_max + EPSILON);
-    bool p2_dentro = (lx2 >= x_min - EPSILON && lx2 <= x_max + EPSILON &&
-                      ly2 >= y_min - EPSILON && ly2 <= y_max + EPSILON);
-
-    if (p1_dentro || p2_dentro) {
-        return true;
-    }
-
-    Linha borda_cima = linha_create(-1, x_min, y_min, x_max, y_min, "temp", false);
-    Linha borda_direita = linha_create(-1, x_max, y_min, x_max, y_max, "temp", false);
-    Linha borda_baixo = linha_create(-1, x_max, y_max, x_min, y_max, "temp", false);
-    Linha borda_esquerda = linha_create(-1, x_min, y_max, x_min, y_min, "temp", false);
-
-    bool resultado = (sobrepoe_linha_linha(l, borda_cima) ||
-                      sobrepoe_linha_linha(l, borda_direita) ||
-                      sobrepoe_linha_linha(l, borda_baixo) ||
-                      sobrepoe_linha_linha(l, borda_esquerda));
-
-    linha_destroy(borda_cima);
-    linha_destroy(borda_direita);
-    linha_destroy(borda_baixo);
-    linha_destroy(borda_esquerda);
-
-    return resultado;
-}
-
-static bool colisao_retPoli(Retangulo r, Poligono p) 
-{
-    double x = retangulo_getCoordX(r);
-    double y = retangulo_getCoordY(r);
-    double w = retangulo_getWidth(r);
-    double h = retangulo_getHeight(r);
-
-    if (poligono_isInside(p, x, y) || 
-        poligono_isInside(p, x + w, y) || 
-        poligono_isInside(p, x + w, y +h) || 
-        poligono_isInside(p, x, y +h)) {
-        return true;
-    }
-
-    int n_vertices = poligono_getNumVertices(p);
-    for (int i = 0; i < n_vertices; i++) {
-        double xp = poligono_getXVertice(p, i);
-        double yp = poligono_getYVertice(p, i);
-        
-        if (ponto_dentro_retangulo(r, xp, yp)) {
-            return true;
-        }
-    }
-
-    Lista *bordas_poligonos = poligono_getSegmentos(p);
-    int n_bordas = lista_getSize(bordas_poligonos);
-    bool interseccao = false;
     
-    for (int j = 0; j < n_bordas; j++) {
-        Linha borda = (Linha)lista_remove_inicio(bordas_poligonos);
-        
-        if (!interseccao && colisao_retLinha(r, borda)) {
-            interseccao = true;
-        }
-        
-        linha_destroy(borda);
+    switch(f1_type){
+        case(TIPO_C):{
+            switch(f2_type){
+                case(TIPO_C): return colisaoCircCirc((Circulo)f1, (Circulo)f2); break;
+                case(TIPO_R): return colisaoCircRet((Circulo)f1, (Retangulo)f2); break;
+                case(TIPO_L): return colisaoCircLinha((Circulo)f1, (Linha)f2); break;
+                case(TIPO_T): return colisaoCircTxto((Circulo)f1, (Texto)f2); break;
+                default: return false; break;
+            }
+        }; break;
+        case(TIPO_R):{
+            switch(f2_type){
+                case(TIPO_C): return colisaoCircRet((Circulo)f1, (Retangulo)f2); break;
+                case(TIPO_R): return colisaoRetRet((Retangulo)f1, (Retangulo)f2); break;
+                case(TIPO_L): return colisaoLinhaRet((Linha)f1, (Retangulo)f2); break;
+                case(TIPO_T): return colisaoRetTxto((Retangulo)f1, (Texto)f2); break;
+                default: return false;   
+            }
+        }; break;
+        case(TIPO_L):{
+            switch(f2_type){
+                case(TIPO_C): return colisaoCircLinha((Circulo)f1, (Linha)f2); break;
+                case(TIPO_R): return colisaoLinhaRet((Linha)f1, (Retangulo)f2); break;
+                case(TIPO_L): return colisaoLinhaLinha((Linha)f1, (Linha)f2); break;
+                case(TIPO_T): return colisaoLinhaTxto((Linha)f1, (Texto)f2); break;
+                default: return false; break;
+            }
+        }; break;
+        case(TIPO_T):{
+            switch(f2_type){
+                case(TIPO_C): return colisaoCircTxto((Circulo)f1, (Texto)f2); break;
+                case(TIPO_R): return colisaoRetTxto((Retangulo)f1, (Texto)f2); break;
+                case(TIPO_L): return colisaoLinhaTxto((Linha)f1, (Texto)f2); break;
+                case(TIPO_T): return colisaoTxtoTxto((Texto)f1, (Texto)f2); break;
+                default: return false; break;
+            }
+        }; break;
+        default: return false; break;
     }
+}
+
+
+
+bool colisaoCircCirc(Circulo c1, Circulo c2)
+{
+    double xc1 = circulo_getCoordX(c1);
+    double yc1 = circulo_getCoordY(c1);
+    double rc1 = circulo_getRaio(c1);
+    double xc2 = circulo_getCoordX(c2);
+    double yc2 = circulo_getCoordY(c2);
+    double rc2 = circulo_getRaio(c2);
     
-    lista_destroy(bordas_poligonos);
-    return interseccao;
+    double dist = sqrt(pow((xc1-xc2),2) + pow((yc1-yc2),2));
+
+    return dist <= (rc1 + rc2);
 }
 
-static bool colisao_circPoli(Circulo c, Poligono p) 
+bool colisaoRetRet(Retangulo r1, Retangulo r2)
 {
-    double cx = circulo_getCoordX(c);
-    double cy = circulo_getCoordY(c);
-
-    if (poligono_isInside(p, cx, cy)) {
-        return true;
-    }
-
-    int n_vertices = poligono_getNumVertices(p);
-    for (int i = 0; i < n_vertices; i++) {
-        double xp = poligono_getXVertice(p, i);
-        double yp = poligono_getYVertice(p, i);
-
-        if (ponto_dentro_circulo(c, xp, yp)) {
-            return true;
-        }
-    }
-
-    Lista *bordas_poligono = poligono_getSegmentos(p);
-    int n_bordas = lista_getSize(bordas_poligono);
-    bool intersecao = false;
-
-    for (int j = 0; j < n_bordas; j++) {
-        Linha borda = (Linha)lista_remove_inicio(bordas_poligono);
-
-        if (!intersecao && sobrepoe_circulo_linha_texto(c, borda)) {
-            intersecao = true;
-        }
-        
-        /* CORREÇÃO CRÍTICA: Destruir a linha */
-        linha_destroy(borda);
-    }
-
-    lista_destroy(bordas_poligono);
-    return intersecao;
+    double xr1 = retangulo_getCoordX(r1);
+    double yr1 = retangulo_getCoordY(r1); 
+    double wr1 = retangulo_getWidth(r1); 
+    double hr1 = retangulo_getHeight(r1); 
+    double xr2 = retangulo_getCoordX(r2); 
+    double yr2 = retangulo_getCoordY(r2); 
+    double wr2 = retangulo_getWidth(r2); 
+    double hr2 = retangulo_getHeight(r2);
+    
+    return !(xr1 > xr2 + wr2 || xr1 + wr1 < xr2 || yr1 > yr2 + hr2 || yr1 + hr1 < yr2); 
 }
 
-static bool colisao_anteLinha(Anteparo l1, Linha l2) 
+bool colisaoCircRet(Circulo c, Retangulo r)
 {
-    double p0_x = anteparo_getX1(l1);
-    double p0_y = anteparo_getY1(l1);
-    double p1_x = anteparo_getX2(l1);
-    double p1_y = anteparo_getY2(l1);
+    double xc = circulo_getCoordX(c);
+    double yc = circulo_getCoordY(c);
+    double rc = circulo_getRaio(c);
+    double xr = retangulo_getCoordX(r);
+    double yr = retangulo_getCoordY(r); 
+    double wr = retangulo_getWidth(r);
+    double hr = retangulo_getHeight(r);  
 
-    double p2_x = linha_getCoordX1(l2);
-    double p2_y = linha_getCoordY1(l2);
-    double p3_x = linha_getCoordX2(l2);
-    double p3_y = linha_getCoordY2(l2);
+    double ponto_proxX = fmax(xr, xc);
 
-    int o1 = geometria_prodVet(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y);
-    int o2 = geometria_prodVet(p0_x, p0_y, p1_x, p1_y, p3_x, p3_y);
-    int o3 = geometria_prodVet(p2_x, p2_y, p3_x, p3_y, p0_x, p0_y);
-    int o4 = geometria_prodVet(p2_x, p2_y, p3_x, p3_y, p1_x, p1_y);
+    ponto_proxX = fmin(ponto_proxX, xr + wr);
 
-    if (o1 != o2 && o3 != o4) {
-        return true;
-    }
 
-    if (o1 == 0 && geometria_isPointInSeg(p0_x, p0_y, p2_x, p2_y, p1_x, p1_y)) return true;
-    if (o2 == 0 && geometria_isPointInSeg(p0_x, p0_y, p3_x, p3_y, p1_x, p1_y)) return true;
-    if (o3 == 0 && geometria_isPointInSeg(p2_x, p2_y, p0_x, p0_y, p3_x, p3_y)) return true;
-    if (o4 == 0 && geometria_isPointInSeg(p2_x, p2_y, p1_x, p1_y, p3_x, p3_y)) return true;
+    double ponto_proxY = fmax(yr, yc);
 
-    return false;
+    ponto_proxY = fmin(ponto_proxY, yr + hr);
+
+    double dist = sqrt(pow((xc-ponto_proxX),2) + pow((yc-ponto_proxY),2));
+
+    return dist <= rc;
 }
 
-static bool colisao_antePoli(Anteparo pp, Poligono p) 
+bool colisaoLinhaLinha(Linha l1, Linha l2)
 {
-    if (poligono_isInside(p, anteparo_getX1(pp), anteparo_getY1(pp))) {
-        return true;
-    }
-    if (poligono_isInside(p, anteparo_getX2(pp), anteparo_getY2(pp))) {
-        return true;
-    }
+    double x1l1 = linha_getCoordX1(l1);
+    double x2l1 = linha_getCoordX2(l1);
+    double y1l1 = linha_getCoordY1(l1);
+    double y2l1 = linha_getCoordY2(l1);
+    double x1l2 = linha_getCoordX1(l2);
+    double x2l2 = linha_getCoordX2(l2);
+    double y1l2 = linha_getCoordY1(l2);
+    double y2l2 = linha_getCoordY2(l2);
 
-    Lista *bordas_poligono = poligono_getSegmentos(p);
-    int n_bordas = lista_getSize(bordas_poligono);
-    bool intersecao = false;
+    
+    double D = (x1l1 - x2l1) * ( y1l2 - y2l2) - (y1l1 - y2l1) * (x1l2 - x2l2);
 
-    for (int j = 0; j < n_bordas; j++) {
-        Linha borda = (Linha)lista_remove_inicio(bordas_poligono);
+    if(!D) return false;
 
-        if (!intersecao && colisao_anteLinha(pp, borda)) {
-            intersecao = true;
-        }
-        
-        linha_destroy(borda);
-    }
+    double t = ((x1l1 - x1l2) * ( y1l2 - y2l2) - (y1l1 - y1l2) * (x1l2 - x2l2)) / D;
 
-    lista_destroy(bordas_poligono);
-    return intersecao;
+    double u = -(((x1l1 - x2l1) * (y1l1 - y1l2) - (y1l1 - y2l1) * (x1l1 - x1l2)) / D);
+
+    return((t >= 0 && t <= 1) && (u >= 0 && u <= 1));
 }
 
-static bool colisao_linhaPoli(Linha l, Poligono p) 
+bool colisaoCircLinha(Circulo c, Linha l)
 {
-    if (poligono_isInside(p, linha_getCoordX1(l), linha_getCoordY1(l))) {
-        return true;
+    double xc = circulo_getCoordX(c);
+    double yc = circulo_getCoordY(c);
+    double rc = circulo_getRaio(c);
+    double x1l = linha_getCoordX1(l);
+    double x2l = linha_getCoordX2(l);
+    double y1l = linha_getCoordY1(l);
+    double y2l = linha_getCoordY2(l);
+    
+    double deltaX = x2l - x1l;
+    double deltaY = y2l - y1l;
+    
+    double linha_lenght = (deltaX * deltaX) + (deltaY * deltaY);
+    
+    if(!linha_lenght){
+        double deltaX_ponto = x1l - xc;
+        double deltaY_ponto = y1l - yc;
+        double dist_sq_ponto = (deltaX_ponto * deltaX_ponto) + (deltaY_ponto * deltaY_ponto);
+        return dist_sq_ponto <= (rc * rc);
     }
-    if (poligono_isInside(p, linha_getCoordX2(l), linha_getCoordY2(l))) {
-        return true;
-    }
 
-    Lista *bordas_poligono = poligono_getSegmentos(p);
-    int n_bordas = lista_getSize(bordas_poligono);
-    bool intersecao = false;
 
-    for (int j = 0; j < n_bordas; j++) {
-        Linha borda = (Linha)lista_remove_inicio(bordas_poligono);
+    double t = ((xc - x1l) * deltaX + (yc - y1l) * deltaY) / linha_lenght;
 
-        if (!intersecao && sobrepoe_linha_linha(l, borda)) {
-            intersecao = true;
-        }
-        
-        linha_destroy(borda);
-    }
 
-    lista_destroy(bordas_poligono);
-    return intersecao;
+    t = fmax(0, t);
+    t = fmin(1, t);
+
+
+    double ponto_proxX = x1l + t * deltaX;
+    double ponto_proxY = y1l + t * deltaY;
+
+
+    return (pow((xc -ponto_proxX), 2) + pow((yc - ponto_proxY), 2)) <= (rc * rc);
 }
 
-static bool colisao_txtoPoli(Texto t, Poligono p) {
-    Linha temp_linha = conversaoTxtoLinha(t);
+bool colisaoCircTxto(Circulo c, Texto t)
+{
+    Linha temp = conversaoTxtoLinha(t);
 
-    bool resultado = colisao_linhaPoli(temp_linha, p);
+    bool colisao  = colisaoCircLinha(c, temp);
 
-    linha_destroy(temp_linha);
-    return resultado;
+    linha_destroy(temp);
+
+    return colisao;
+}
+
+
+bool colisaoLinhaRet(Linha l, Retangulo r)
+{
+    double xr = retangulo_getCoordX(r);
+    double yr = retangulo_getCoordY(r); 
+    double wr = retangulo_getWidth(r);
+    double hr = retangulo_getHeight(r); 
+    
+    Linha topo_temp = linha_create(-1, xr, yr, (xr + wr), yr, "", false);
+    bool colisao_topo = colisaoLinhaLinha(l, topo_temp);
+    
+    Linha esq_temp = linha_create(-1, xr, yr, xr, (yr + hr), "", false);
+    bool colisao_esq = colisaoLinhaLinha(l, esq_temp);
+    
+    Linha dir_temp = linha_create(-1, (xr + wr), yr, (xr + wr), (yr + hr), "", false);
+    bool colisao_dir = colisaoLinhaLinha(l, dir_temp);
+    
+    Linha chao_temp = linha_create(-1, xr, (yr + hr), (xr + wr), (yr + hr), "", false);
+    bool colisao_chao = colisaoLinhaLinha(l, chao_temp);
+    
+    linha_destroy(topo_temp);
+    linha_destroy(esq_temp);
+    linha_destroy(dir_temp);
+    linha_destroy(chao_temp);
+    
+    double x1l = linha_getCoordX1(l), y1l = linha_getCoordY1(l);
+    if(x1l >= xr && x1l <= (xr + wr) && y1l >= yr && y1l <= (yr + hr)) return true;
+    
+    
+    return (colisao_chao || colisao_dir || colisao_esq || colisao_topo);
+}
+
+bool colisaoLinhaTxto(Linha l, Texto t)
+{
+    Linha temp = conversaoTxtoLinha(t);
+    
+    bool colisao = colisaoLinhaLinha(l, temp);
+
+    linha_destroy(temp);
+
+    return colisao;
+}
+
+bool colisaoRetTxto(Retangulo r, Texto t)
+{
+    Linha temp = conversaoTxtoLinha(t);
+    bool colisao = colisaoLinhaRet(temp, r);
+
+    linha_destroy(temp);
+
+    return colisao;
+}
+
+bool colisaoTxtoTxto(Texto t1, Texto t2)
+{
+    Linha temp1 = conversaoTxtoLinha(t1), temp2 = conversaoTxtoLinha(t2);
+    bool colisao = colisaoLinhaLinha(temp1, temp2);
+
+    linha_destroy(temp1);
+    linha_destroy(temp2);
+
+    return colisao;
 }

@@ -1,9 +1,6 @@
 #ifndef RETANGULO_H
 #define RETANGULO_H
 
-#include "anteparo.h"
-#include "lista.h"
-
 typedef void* Retangulo;
 
 /****************************************************************************************
@@ -133,15 +130,5 @@ void retangulo_setCorPreench(Retangulo r, char *corpreench);
 * @param r O retângulo a ser destruído.
 ****************************************************************************************/
 void retangulo_destroy(Retangulo r);
-
-
-
-/****************************************************************************************
-* @brief Converte as arestas de um retângulo em anteparos.
-* @param r O retângulo a ser convertido.
-* @param ant_id Ponteiro para o ID do anteparo.
-* @return Retorna a  lista de anteparos criados.
-****************************************************************************************/
-Lista *retangulo_anteparo(Retangulo r, int ant_id);
 
 #endif

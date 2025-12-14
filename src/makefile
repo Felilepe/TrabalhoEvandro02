@@ -1,5 +1,3 @@
-
-
 PROJ_NAME := ted
 CC        := gcc
 CFLAGS    := -W -Wall -Wextra -ggdb -std=c99 -fstack-protector-all
