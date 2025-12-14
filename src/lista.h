@@ -19,6 +19,8 @@ typedef struct lista Lista;
 ****************************************************/
 Lista *lista_create();
 
+
+
 /********************************************************************
 *@brief Verifica se a lista está vazia.
 *@param l Ponteiro para a lista que será checada.
@@ -33,19 +35,21 @@ bool lista_isEmpty(Lista *l);
 ******************************************************************/
 int lista_getSize(Lista *l);
 
+
+
 /*****************************************************************
  *@brief Adiciona um item no início da lista.
  *@param l Ponteiro para a lista.
  *@param i O item (void*) a ser adicionado.
  *****************************************************************/
-void lista_insere_inicio(Lista *l, item i);
+void lista_insertHead(Lista *l, item i);
 
 /*****************************************************************
  *@brief Adiciona um item no fim da lista.
  *@param l Ponteiro para a lista.
  *@param i O item (void*) a ser adicionado.
  *****************************************************************/
-void lista_insere_fim(Lista *l, item i);
+void lista_insertTail(Lista *l, item i);
 
 /**********************************************************************************
 *@brief Remove e retorna o item do início da lista.
@@ -53,7 +57,7 @@ void lista_insere_fim(Lista *l, item i);
 *@return Retorna o ponteiro para o item (void*).
 *@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
 **********************************************************************************/
-item lista_remove_inicio(Lista *l);
+item lista_removeHead(Lista *l);
 
 /**********************************************************************************
 *@brief Remove e retorna o item do fim da lista.
@@ -61,7 +65,9 @@ item lista_remove_inicio(Lista *l);
 *@return Retorna o ponteiro para o item (void*).
 *@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
 **********************************************************************************/
-item lista_remove_fim(Lista *l);
+item lista_removeTail(Lista *l);
+
+
 
 /*****************************************************************************
 *@brief Percorre a lista e executa uma função 'acao' para cada item.
@@ -71,6 +77,8 @@ item lista_remove_fim(Lista *l);
 *@param aux_data Um ponteiro auxiliar para ser passado para a função 'acao'.
 *****************************************************************************/
 void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data);
+
+
 
 /******************************************************************
 *@brief Libera toda a memória alocada pelos nós da lista.

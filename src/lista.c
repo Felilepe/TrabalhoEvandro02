@@ -43,7 +43,26 @@ int lista_getSize(Lista *l)
     return l->size;
 }
 
-void lista_insere_inicio(Lista *l, item i)
+item lista_getHead(Lista *l)
+{
+    if(lista_isEmpty(l)){
+        printf("Erro: Tentativa de acesso ao head de lista vazia.");
+        exit(1);
+    }
+    return l->head->data;
+}
+
+item lista_getTail(Lista *l)
+{
+    if(lista_isEmpty(l)){
+        printf("Erro: Tentativa de acesso ao tail de lista vazia.");
+        exit(1);
+    }
+    return l->tail->data;
+}
+
+
+void lista_insertHead(Lista *l, item i)
 {
     NodeL *novoNode = (NodeL*)malloc(sizeof(NodeL));
     if(novoNode == NULL){
@@ -65,7 +84,7 @@ void lista_insere_inicio(Lista *l, item i)
     l->size++;
 }
 
-void lista_insere_fim(Lista *l, item i)
+void lista_insertTail(Lista *l, item i)
 {
     NodeL *novoNode = (NodeL*)malloc(sizeof(NodeL));
     if(novoNode == NULL){
@@ -87,7 +106,7 @@ void lista_insere_fim(Lista *l, item i)
     l->size++;
 }
 
-item lista_remove_inicio(Lista *l)
+void lista_removeHead(Lista *l)
 {
     if(lista_isEmpty(l)){
         printf("Erro: Tentativa de remocao de lista vazia.");
@@ -107,10 +126,9 @@ item lista_remove_inicio(Lista *l)
     }
     
     free(nodeRemover);
-    return itemRetornar;
 }
 
-item lista_remove_fim(Lista *l)
+void lista_removeTail(Lista *l)
 {
     if(lista_isEmpty(l)){
         printf("Erro: Tentativa de remocao de lista vazia.");
@@ -130,8 +148,9 @@ item lista_remove_fim(Lista *l)
     }
     
     free(nodeRemover);
-    return itemRetornar;
 }
+
+
 
 void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data)
 {
@@ -146,6 +165,8 @@ void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_d
         atual = atual->next;
     }
 }
+
+
 
 void lista_destroy(Lista *l)
 {
