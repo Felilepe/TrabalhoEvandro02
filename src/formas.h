@@ -5,6 +5,7 @@
 #define TIPO_R 2
 #define TIPO_L 3
 #define TIPO_T 4
+#define TIPO_A 5
 
 #include <stdio.h>
 
