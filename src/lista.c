@@ -114,8 +114,7 @@ void lista_removeHead(Lista *l)
     }
 
     NodeL *nodeRemover = l->head;
-    item itemRetornar = nodeRemover->data;
-    
+
     l->head = nodeRemover->next; 
     l->size--;
 
@@ -136,7 +135,6 @@ void lista_removeTail(Lista *l)
     }
 
     NodeL *nodeRemover = l->tail;
-    item itemRetornar = nodeRemover->data;
     
     l->tail = nodeRemover->prev; 
     l->size--;

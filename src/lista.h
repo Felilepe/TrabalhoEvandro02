@@ -57,7 +57,7 @@ void lista_insertTail(Lista *l, item i);
 *@return Retorna o ponteiro para o item (void*).
 *@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
 **********************************************************************************/
-item lista_removeHead(Lista *l);
+void lista_removeHead(Lista *l);
 
 /**********************************************************************************
 *@brief Remove e retorna o item do fim da lista.
@@ -65,7 +65,7 @@ item lista_removeHead(Lista *l);
 *@return Retorna o ponteiro para o item (void*).
 *@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
 **********************************************************************************/
-item lista_removeTail(Lista *l);
+void lista_removeTail(Lista *l);
 
 
 
