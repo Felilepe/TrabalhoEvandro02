@@ -10,13 +10,13 @@ int anteparo_getID(Anteparo a);
 
 int anteparo_getType(Anteparo a);
 
-double anteparo_getX1(Anteparo a);
+double anteparo_getCoordX1(Anteparo a);
 
-double anteparo_getY1(Anteparo a); 
+double anteparo_getCoordY1(Anteparo a); 
 
-double anteparo_getX2(Anteparo a);
+double anteparo_getCoordX2(Anteparo a);
 
-double anteparo_getY2(Anteparo a);
+double anteparo_getCoordY2(Anteparo a);
 
 char *anteparo_getCor(Anteparo a);
 
@@ -24,13 +24,13 @@ char *anteparo_getCor(Anteparo a);
 
 void anteparo_setId(Anteparo a, int novo_id);
 
-void anteparo_setX1(Anteparo a, double x1);
+void anteparo_setCoordX1(Anteparo a, double x1);
 
-void anteparo_setY1(Anteparo a, double y1);
+void anteparo_setCoordY1(Anteparo a, double y1);
 
-void anteparo_setX2(Anteparo a, double x2);
+void anteparo_setCoordX2(Anteparo a, double x2);
 
-void anteparo_setY2(Anteparo a, double y2);
+void anteparo_setCoordY2(Anteparo a, double y2);
 
 void anteparo_setCor(Anteparo a, const char *cor);
 
