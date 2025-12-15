@@ -3,19 +3,16 @@
 
 typedef void* Ponto;
 
-Ponto ponto_create(int id, double x, double y);
+Ponto ponto_create(double x, double y);
 
 
 
-int ponto_getID(Ponto p);
 
 double ponto_getCoordX(Ponto p);
 
 double ponto_getCoordY(Ponto p);
 
 
-
-void ponto_setID(Ponto p, int novo_id);
 
 void ponto_setCoordX(Ponto p, double x);
 
