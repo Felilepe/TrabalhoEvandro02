@@ -35,6 +35,9 @@ bool lista_isEmpty(Lista *l);
 ******************************************************************/
 int lista_getSize(Lista *l);
 
+item lista_getHead(Lista *l);
+
+item lista_getTail(Lista *l);
 
 
 /*****************************************************************
