@@ -46,13 +46,13 @@ int anteparo_getID(Anteparo a) {return ((anteparo*)a)->id;}
 
 int anteparo_getType(Anteparo a) {return ((anteparo*)a)->type;}
 
-double anteparo_getX1(Anteparo a) {return ((anteparo*)a)->x1;}
+double anteparo_getCoordX1(Anteparo a) {return ((anteparo*)a)->x1;}
 
-double anteparo_getY1(Anteparo a) {return ((anteparo*)a)->y1;}
+double anteparo_getCoordY1(Anteparo a) {return ((anteparo*)a)->y1;}
 
-double anteparo_getX2(Anteparo a) {return ((anteparo*)a)->x2;}
+double anteparo_getCoordX2(Anteparo a) {return ((anteparo*)a)->x2;}
 
-double anteparo_getY2(Anteparo a) {return ((anteparo*)a)->y2;}
+double anteparo_getCoordY2(Anteparo a) {return ((anteparo*)a)->y2;}
 
 char *anteparo_getCor(Anteparo a) {return ((anteparo*)a)->cor;}
 
@@ -60,13 +60,13 @@ char *anteparo_getCor(Anteparo a) {return ((anteparo*)a)->cor;}
 
 void anteparo_setId(Anteparo a, int novo_id) {((anteparo*)a)->id = novo_id;}
 
-void anteparo_setX1(Anteparo a, double x1) {((anteparo*)a)->x1 = x1;}
+void anteparo_setCoordX1(Anteparo a, double x1) {((anteparo*)a)->x1 = x1;}
 
-void anteparo_setY1(Anteparo a, double y1) {((anteparo*)a)->y1 = y1;}
+void anteparo_setCoordY1(Anteparo a, double y1) {((anteparo*)a)->y1 = y1;}
 
-void anteparo_setX2(Anteparo a, double x2) {((anteparo*)a)->x2 = x2;}
+void anteparo_setCoordX2(Anteparo a, double x2) {((anteparo*)a)->x2 = x2;}
 
-void anteparo_setY2(Anteparo a, double y2) {((anteparo*)a)->y2 = y2;}
+void anteparo_setCoordY2(Anteparo a, double y2) {((anteparo*)a)->y2 = y2;}
 
 void anteparo_setCor(Anteparo a, const char *cor) 
 {

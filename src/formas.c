@@ -145,8 +145,8 @@ void forma_exportarDados(forma f, FILE *file_name, char* report_QRY)
             texto_getFamily(t), texto_getWeight(t), texto_getSize(t)); break;
 
         case(TIPO_A): fprintf(file_name, "%s\n Anteparo\n ID: %i\n Ponto 1 em: (%.2lf, %.2lf)\n Ponto 2 em: (%.2lf, %.2lf)\n Cor: %s\n",
-            report_safe, anteparo_getID((Anteparo)f), anteparo_getX1((Anteparo)f), anteparo_getY1((Anteparo)f),
-            anteparo_getX2((Anteparo)f), anteparo_getY2((Anteparo)f), anteparo_getCor((Anteparo)f)); break;
+            report_safe, anteparo_getID((Anteparo)f), anteparo_getCoordX1((Anteparo)f), anteparo_getCoordY1((Anteparo)f),
+            anteparo_getCoordX2((Anteparo)f), anteparo_getCoordY2((Anteparo)f), anteparo_getCor((Anteparo)f)); break;
 
         default: fprintf(file_name, "Tipo de forma desconhecido no forma_exportarDados."); break;
     }
@@ -215,10 +215,10 @@ forma forma_clonar(forma f) {
         }
         case TIPO_A: {
             novo_clone = (forma)anteparo_create(novo_id,
-                anteparo_getX1((Anteparo)f),
-                anteparo_getY1((Anteparo)f),
-                anteparo_getX2((Anteparo)f),
-                anteparo_getY2((Anteparo)f),
+                anteparo_getCoordX1((Anteparo)f),
+                anteparo_getCoordY1((Anteparo)f),
+                anteparo_getCoordX2((Anteparo)f),
+                anteparo_getCoordY2((Anteparo)f),
                 anteparo_getCor((Anteparo)f)
             );
             break;
@@ -274,7 +274,7 @@ double forma_getCoordX(forma f)
             break;
         }
         case(TIPO_T): coordx = texto_getCoordX((Texto)f); break;
-        case(TIPO_A): coordx = (anteparo_getX1((Anteparo)f) < anteparo_getX2((Anteparo)f)) ? anteparo_getX1((Anteparo)f) : anteparo_getX2((Anteparo)f); break;
+        case(TIPO_A): coordx = (anteparo_getCoordX1((Anteparo)f) < anteparo_getCoordX2((Anteparo)f)) ? anteparo_getCoordX1((Anteparo)f) : anteparo_getCoordX2((Anteparo)f); break;
         default: printf("Erro: tipo de forma invalido no forma_getCoordX."); exit(1); break;
     }
     return coordx;
@@ -309,7 +309,7 @@ double forma_getCoordY(forma f)
             break;
         }
         case(TIPO_T): coordy = texto_getCoordY((Texto)f); break;
-        case(TIPO_A): coordy = (anteparo_getY1((Anteparo)f) < anteparo_getY2((Anteparo)f)) ? anteparo_getY1((Anteparo)f) : anteparo_getY2((Anteparo)f); break;  
+        case(TIPO_A): coordy = (anteparo_getCoordY1((Anteparo)f) < anteparo_getCoordY2((Anteparo)f)) ? anteparo_getCoordY1((Anteparo)f) : anteparo_getCoordY2((Anteparo)f); break;  
         default: printf("Erro: tipo de forma invalido no forma_getCoordY."); exit(1); break;
     }
     return coordy;
@@ -425,10 +425,10 @@ void forma_setCoordX(forma f, double x)
         }
         case TIPO_A:
             {
-                double x1_atual = anteparo_getX1((Anteparo)f);
-                double y1_atual = anteparo_getY1((Anteparo)f);
-                double x2_atual = anteparo_getX2((Anteparo)f);
-                double y2_atual = anteparo_getY2((Anteparo)f);
+                double x1_atual = anteparo_getCoordX1((Anteparo)f);
+                double y1_atual = anteparo_getCoordY1((Anteparo)f);
+                double x2_atual = anteparo_getCoordX2((Anteparo)f);
+                double y2_atual = anteparo_getCoordY2((Anteparo)f);
 
                 double delta_x;
                 bool p1_era_ancora;
@@ -444,13 +444,13 @@ void forma_setCoordX(forma f, double x)
                 if (p1_era_ancora) {
                     delta_x = x2_atual - x1_atual;
 
-                    anteparo_setX1((Anteparo)f, x);           
-                    anteparo_setX2((Anteparo)f, x + delta_x);
+                    anteparo_setCoordX1((Anteparo)f, x);           
+                    anteparo_setCoordX2((Anteparo)f, x + delta_x);
                 } else {
                     delta_x = x1_atual - x2_atual;
 
-                    anteparo_setX2((Anteparo)f, x);           
-                    anteparo_setX1((Anteparo)f, x + delta_x); 
+                    anteparo_setCoordX2((Anteparo)f, x);           
+                    anteparo_setCoordX1((Anteparo)f, x + delta_x); 
                 }
                 break;
             }
@@ -499,10 +499,10 @@ void forma_setCoordY(forma f, double y)
         }
         case TIPO_A:
             {
-                double x1_atual = anteparo_getX1((Anteparo)f);
-                double y1_atual = anteparo_getY1((Anteparo)f);
-                double x2_atual = anteparo_getX2((Anteparo)f);
-                double y2_atual = anteparo_getY2((Anteparo)f);
+                double x1_atual = anteparo_getCoordX1((Anteparo)f);
+                double y1_atual = anteparo_getCoordY1((Anteparo)f);
+                double x2_atual = anteparo_getCoordX2((Anteparo)f);
+                double y2_atual = anteparo_getCoordY2((Anteparo)f);
 
                 double delta_y;
                 bool p1_era_ancora;
@@ -518,13 +518,13 @@ void forma_setCoordY(forma f, double y)
                 if (p1_era_ancora) {
                     delta_y = y2_atual - y1_atual;
 
-                    anteparo_setY1((Anteparo)f, y);          
-                    anteparo_setY2((Anteparo)f, y + delta_y); 
+                    anteparo_setCoordY1((Anteparo)f, y);          
+                    anteparo_setCoordY2((Anteparo)f, y + delta_y); 
                 } else {
                     delta_y = y1_atual - y2_atual;
 
-                    anteparo_setY2((Anteparo)f, y);        
-                    anteparo_setY1((Anteparo)f, y + delta_y); 
+                    anteparo_setCoordY2((Anteparo)f, y);        
+                    anteparo_setCoordY1((Anteparo)f, y + delta_y); 
                 }
                 break;
             }
