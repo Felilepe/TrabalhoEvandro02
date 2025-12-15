@@ -9,68 +9,6 @@
 #include "texto.h"
 #include "linha.h"
 
-#define TIPO_C 1
-#define TIPO_R 2
-#define TIPO_L 3
-#define TIPO_T 4
-
-static double conversaoCoordTxtoLinhaX1(Texto t) // Converte a coordenada de x de um texto para uma coordenada x1 de uma linha
-{
-    double xt = texto_getCoordX(t);
-    int char_count = texto_getCharCount(t);
-    char at = texto_getAnchor(t);
-    double x1;
-
-
-    if (at == 's' || at == 'S' || at == 'l' || at == 'L') at = 'i';
-    if (at == 'e' || at == 'E') at = 'f';
-
-    switch(at){
-        case 'i': x1 = xt; break;
-        case 'm': x1 = xt - 10 * (double)char_count / 2; break;
-        case 'f': x1 = xt - 10 * (double)char_count; break;
-        default:
-            x1 = xt;
-            break;
-    }
-
-    return  x1;
-}
-
-static double conversaoCoordTxtoLinhaX2(Texto t) // Converte a coordenada de x de um texto para uma coordenada x1 de uma linha
-{
-    double xt = texto_getCoordX(t);
-    int char_count = texto_getCharCount(t);
-    char at = texto_getAnchor(t);
-    double x2;
-
-    if (at == 's' || at == 'S' || at == 'l' || at == 'L') at = 'i';
-    if (at == 'e' || at == 'E') at = 'f';
-
-    switch(at){
-        case 'i': x2 = xt + 10 * (double)char_count; break;
-        case 'm': x2 = xt + 10 * (double)char_count / 2; break;
-        case 'f': x2 = xt; break;
-        default:
-            x2 = xt + 10 * (double)char_count;
-            break;
-    }
-
-    return x2;
-}
-
-static Linha conversaoTxtoLinha(Texto t) //Cria uma linha utilizando as coordenadas de um texto
-{
-    double x1, x2;
-    double y1, y2;
-
-    x1 = conversaoCoordTxtoLinhaX1(t);
-    x2 = conversaoCoordTxtoLinhaX2(t);
-    y1 = y2 = texto_getCoordY(t);
-    Linha temp = linha_create(-1, x1, y1, x2, y2, " ", false );
-
-    return temp;
-}
 
 bool checarColisao(forma f1, forma f2)
 {
