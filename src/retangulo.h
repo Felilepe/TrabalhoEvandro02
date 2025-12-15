@@ -1,5 +1,7 @@
 #ifndef RETANGULO_H
 #define RETANGULO_H
+#include "anteparo.h"
+#include "lista.h"
 
 typedef void* Retangulo;
 
@@ -15,6 +17,25 @@ typedef void* Retangulo;
 * @return Retorna um ponteiro do tipo Retangulo para o retângulo recém-criado.          
 ****************************************************************************************/
 Retangulo retangulo_create(int id, double x, double  y, double w, double h, char *corborda, char *corpreench);
+
+/****************************************************************************************
+* @brief Obtém a área de um retângulo.                                                  
+* @param r O retângulo do qual a área será obtida.                                      
+* @return Retorna o valor da área (um double).                                          
+****************************************************************************************/
+double retangulo_calcArea(Retangulo r);
+
+/****************************************************************************************
+* @brief Libera a memória alocada para o retângulo.
+* @param r O retângulo a ser destruído.
+****************************************************************************************/
+void retangulo_destroy(Retangulo r);
+
+Lista *retangulo_toAnteparo(Retangulo r, int *id_next);
+
+
+
+// ... (Getters) ...
 
 /****************************************************************************************
 * @brief Obtém a coordenada X da âncora de um retângulo.                                
@@ -51,7 +72,6 @@ char* retangulo_getCorPreench(Retangulo r);
  ****************************************************************************************/
 double retangulo_getHeight(Retangulo r);
 
-
 /****************************************************************************************
  * @brief Obtém a largura de um retângulo.                                               
  * @param r O retângulo do qual a largura será obtida.                                   
@@ -74,14 +94,7 @@ int retangulo_getID(Retangulo r);
 int retangulo_getType(Retangulo r);
 
 
-
-/****************************************************************************************
-* @brief Obtém a área de um retângulo.                                                  
-* @param r O retângulo do qual a área será obtida.                                      
-* @return Retorna o valor da área (um double).                                          
-****************************************************************************************/
-double retangulo_calcArea(Retangulo r);
-
+// ... (Setters) ...
 
 /****************************************************************************************
 * @brief Define a coordenada X da âncora de um retângulo.
@@ -125,10 +138,5 @@ void retangulo_setCorBorda(Retangulo r, char *corborda);
 ****************************************************************************************/
 void retangulo_setCorPreench(Retangulo r, char *corpreench);
 
-/****************************************************************************************
-* @brief Libera a memória alocada para o retângulo.
-* @param r O retângulo a ser destruído.
-****************************************************************************************/
-void retangulo_destroy(Retangulo r);
 
 #endif

@@ -559,3 +559,39 @@ void forma_setCorPreench(forma f, char* corp)
         default: printf("Erro: tipo de forma invalido em forma_setCorPreench."); exit(1); break;
     }
 }
+
+
+
+Lista *forma_toAnteparo(forma f, char orientacao)
+{
+    int type = forma_getType(f);
+    
+    static int id_anteparo= 10000;
+    int id_novo = ++id_anteparo;
+
+    Lista *anteparos = lista_create();
+
+
+    switch(type){
+        case TIPO_C:{
+            ; 
+            lista_insertTail(anteparos, circulo_toAnteparo((Circulo)f, orientacao, &id_novo));
+            break;
+        } 
+        case TIPO_R:{
+            anteparos = retangulo_toAnteparo;
+            break;
+        }
+        case TIPO_L:{
+            lista_insertTail(anteparos, texto_toAnteparo((Texto)f, &id_novo));
+            break;
+        }
+        case TIPO_T:{
+            lista_insertTail(anteparos, texto_toAnteparo((Texto)f, &id_novo));
+            break;
+        }
+        default: printf("Aviso: Tipo de forma invalido em forma_toAnteparo. Retornando Lista vazia");
+    }
+
+    return anteparos;
+}

@@ -103,3 +103,39 @@ void circulo_destroy(Circulo c)
     free(temp ->corpreench);
     free(temp);
 }   
+
+
+
+Anteparo circulo_toAnteparo(Circulo c, char orientacao, int *id_next)
+{
+    if (c == NULL){
+        printf("Erro: circulo nulo recebido em circulo_toAnteparo\n");
+        exit(1);
+    }
+
+    circulo *circ = (circulo *)c;
+
+    double x = circ -> x;
+    double y = circ -> y;
+    double r = circ -> r;
+
+
+    switch(orientacao){
+        case 'H': case 'h': {
+            return anteparo_create(++(*id_next),
+                (x - r), y, 
+                (x + r), y, 
+                circulo_getCorBorda(circ) 
+            ); break;
+        }
+        case 'V': case 'v': {
+            return anteparo_create(++(*id_next),
+                x, (y - r),
+                x, (y + r),
+                circulo_getCorBorda(circ)
+            ); break;
+        }
+        default: printf("Erro: orientacao invalida em circulo_toAnteparo\n");
+    }
+    return NULL;
+}

@@ -1,22 +1,41 @@
 #ifndef LINHA_H
 #define LINHA_H
 #include <stdbool.h>
+#include "anteparo.h"
 
 typedef void* Linha;
 
 /******************************************************************
-*@brief Cria e aloca a memória para uma nova linha.
-*@param id Identificador único para a linha.
-*@param x1 Coordenada X do ponto inicial.
-*@param y1 Coordenada Y do ponto inicial.
-*@param x2 Coordenada X do ponto final.
-*@param y2 Coordenada Y do ponto final.
-*@param cor String que representa a cor da linha.
-*@param isDotted Flag booleano se a linha é pontilhada.
-*@return Retorna um ponteiro do tipo Linha para a linha recém-criada.
-******************************************************************/
+ *@brief Cria e aloca a memória para uma nova linha.
+ *@param id Identificador único para a linha.
+ *@param x1 Coordenada X do ponto inicial.
+ *@param y1 Coordenada Y do ponto inicial.
+ *@param x2 Coordenada X do ponto final.
+ *@param y2 Coordenada Y do ponto final.
+ *@param cor String que representa a cor da linha.
+ *@param isDotted Flag booleano se a linha é pontilhada.
+ *@return Retorna um ponteiro do tipo Linha para a linha recém-criada.
+ ******************************************************************/
 Linha linha_create(int id, double x1, double y1, double x2, double y2, char* cor, bool isDotted);
 
+/******************************************************************
+*@brief Libera a memória alocada para a linha.
+*@param l A linha a ser destruída.
+******************************************************************/
+void linha_destroy(Linha l);
+
+/******************************************************************
+*@brief Calcula a "área" (comprimento) de uma linha.
+*@param l A linha.
+*@return O comprimento (double) da linha.
+******************************************************************/
+double linha_calcArea(Linha l);
+
+Anteparo linha_toAnteparo(Linha l, int *id_next);
+
+
+
+// ... (Getters) ...
 
 /******************************************************************
 *@brief Obtém o ID de uma linha.
@@ -75,12 +94,6 @@ bool linha_getIsDotted(Linha l);
 int linha_getType(Linha l);
 
 
-/******************************************************************
-*@brief Calcula a "área" (comprimento) de uma linha.
-*@param l A linha.
-*@return O comprimento (double) da linha.
-******************************************************************/
-double linha_calcArea(Linha l);
 
 // ... (Setters) ...
 
@@ -121,10 +134,5 @@ void linha_setCoordY2(Linha l, double y2);
 void linha_setCor(Linha l, char *cor);
 
 
-/******************************************************************
-*@brief Libera a memória alocada para a linha.
-*@param l A linha a ser destruída.
-******************************************************************/
-void linha_destroy(Linha l);
 
 #endif

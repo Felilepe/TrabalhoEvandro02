@@ -1,5 +1,6 @@
 #ifndef FORMAS_H
 #define FORMAS_H
+#include "lista.h"
 
 #define TIPO_C 1
 #define TIPO_R 2
@@ -51,6 +52,9 @@ forma forma_clonar(forma f);
 *@param report_QRY O nome do arquivo QRY (?).
 ******************************************************************/
 void forma_exportarDados(forma f, FILE *file_name, char* report_QRY);
+
+Lista *forma_toAnteparo(forma f, char orientacao);
+
 
 // --- Getters Polimórficos ---
 

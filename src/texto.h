@@ -1,5 +1,7 @@
 #ifndef TEXTO_H
 #define TEXTO_H
+#include "anteparo.h"
+#include "linha.h"
 
 typedef void* Texto;
 
@@ -15,6 +17,25 @@ typedef void* Texto;
 *@return Retorna um ponteiro do tipo Texto para o texto recém-criado.
 ******************************************************************/
 Texto texto_create(int id, double x, double y, char *corborda, char *corpreench, char a, char* txto);
+
+Linha conversaoTxtoLinha(Texto t);
+
+/******************************************************************
+*@brief Libera a memória alocada para o objeto de texto.
+*@param t O texto a ser destruído.
+******************************************************************/
+void texto_destroy(Texto t);
+
+/******************************************************************
+*@brief Calcula a "área" (comprimento * altura base) de um texto.
+*@param t O texto.
+*@return A área (double) do texto.
+******************************************************************/
+double texto_calcArea(Texto t);
+
+
+Anteparo texto_toAnteparo(Texto t, int *id_next);
+
 
 // --- Getters ---
 
@@ -102,12 +123,7 @@ int texto_getCharCount(Texto t);
  ****************************************************************************************/
 int texto_getType(Texto t);
 
-/******************************************************************
-*@brief Calcula a "área" (comprimento * altura base) de um texto.
-*@param t O texto.
-*@return A área (double) do texto.
-******************************************************************/
-double texto_calcArea(Texto t);
+
 
 // --- Setters ---
 
@@ -182,10 +198,5 @@ void texto_setSize(Texto t, char* fSize);
 ******************************************************************/
 void texto_setAnchor(Texto t, char a);
 
-/******************************************************************
-*@brief Libera a memória alocada para o objeto de texto.
-*@param t O texto a ser destruído.
-******************************************************************/
-void texto_destroy(Texto t);
 
 #endif

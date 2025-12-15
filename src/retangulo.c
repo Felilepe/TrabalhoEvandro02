@@ -105,3 +105,31 @@ void retangulo_destroy(Retangulo r)
 }
 
 
+
+Lista *retangulo_toAnteparo(Retangulo r, int *id_next)
+{
+    Lista *anteparos = lista_create();
+
+    if(anteparos == NULL){
+        printf("Erro: lista_create retornou pointer nulo em retangulo_toAnteparo.");
+        exit(1);
+    }
+
+    double x = retangulo_getCoordX(r);
+    double y = retangulo_getCoordY(r);
+    double h = retangulo_getHeight(r);
+    double w = retangulo_getWidth(r);
+    char *cor = retangulo_getCorBorda(r);
+
+    Anteparo topo = anteparo_create(++(id_next), x,(y + h), (x + w), (y + h), cor);
+    Anteparo esq = anteparo_create(++(id_next), x, y, x, (y + h), cor);
+    Anteparo dir = anteparo_create(++(id_next), (x + w), y, (x + w), (y + h), cor);
+    Anteparo chao = anteparo_create(++(id_next), x, y, (x + w), y, cor);
+
+    lista_insertTail(anteparos, topo);      
+    lista_insertTail(anteparos, esq);
+    lista_insertTail(anteparos, dir);
+    lista_insertTail(anteparos, chao);
+
+    return anteparos;
+}
