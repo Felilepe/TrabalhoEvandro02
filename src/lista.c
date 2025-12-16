@@ -37,6 +37,39 @@ bool lista_isEmpty(Lista *l)
     return l->size == 0;
 }
 
+void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data)
+{
+    if (l == NULL || acao == NULL || lista_isEmpty(l)) {
+        return;
+    }
+
+    NodeL *atual = l->head;
+
+    while (atual != NULL) {
+        acao(atual->data, aux_data);
+        atual = atual->next;
+    }
+}
+
+
+
+void lista_destroy(Lista *l)
+{
+    if (l == NULL) return;
+
+    NodeL *atual = l->head;
+    
+    while(atual != NULL){
+        NodeL *temp = atual;
+        atual = atual->next;
+        free(temp); 
+    }
+    
+    free(l);
+}
+
+
+
 int lista_getSize(Lista *l)
 {
     if(l == NULL) return 0;
@@ -60,6 +93,37 @@ item lista_getTail(Lista *l)
     }
     return l->tail->data;
 }
+
+item lista_getItem(Lista *l, int index)
+{
+    if(l == NULL || lista_isEmpty(l)){
+        printf("Erro: Tentativa de acesso a lista vazia ou nula em lista_getItem.");
+        exit(1);
+    }
+
+    if(index < 0 || index >= l->size){
+        printf("Erro: Indice %d invalido. A lista possui indices de 0 a %d.", index, l->size - 1);
+        exit(1);
+    }
+
+    NodeL *atual;
+
+    if (index < l->size / 2) {
+        atual = l->head;
+        for (int i = 0; i < index; i++) {
+            atual = atual->next;
+        }
+    } 
+    else {
+        atual = l->tail;
+        for (int i = l->size - 1; i > index; i--) {
+            atual = atual->prev;
+        }
+    }
+
+    return atual->data;
+}
+
 
 
 void lista_insertHead(Lista *l, item i)
@@ -149,34 +213,3 @@ void lista_removeTail(Lista *l)
 }
 
 
-
-void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data)
-{
-    if (l == NULL || acao == NULL || lista_isEmpty(l)) {
-        return;
-    }
-
-    NodeL *atual = l->head;
-
-    while (atual != NULL) {
-        acao(atual->data, aux_data);
-        atual = atual->next;
-    }
-}
-
-
-
-void lista_destroy(Lista *l)
-{
-    if (l == NULL) return;
-
-    NodeL *atual = l->head;
-    
-    while(atual != NULL){
-        NodeL *temp = atual;
-        atual = atual->next;
-        free(temp); 
-    }
-    
-    free(l);
-}

@@ -19,14 +19,30 @@ typedef struct lista Lista;
 ****************************************************/
 Lista *lista_create();
 
-
-
 /********************************************************************
 *@brief Verifica se a lista está vazia.
 *@param l Ponteiro para a lista que será checada.
 *@return True se a lista estiver vazia, caso contrário False.
 ********************************************************************/
 bool lista_isEmpty(Lista *l);
+
+/*****************************************************************************
+*@brief Percorre a lista e executa uma função 'acao' para cada item.
+* (Modelado a partir de fila_passthrough)
+*@param l Ponteiro para a lista.
+*@param acao A função de callback a ser executada em cada item.
+*@param aux_data Um ponteiro auxiliar para ser passado para a função 'acao'.
+*****************************************************************************/
+void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data);
+
+/******************************************************************
+*@brief Libera toda a memória alocada pelos nós da lista.
+*@note NÃO libera a memória dos 'itens' (dados) armazenados.
+*@param l Ponteiro para a lista a ser destruída.
+******************************************************************/
+void lista_destroy(Lista *l);
+
+
 
 /******************************************************************
 *@brief Pega o número de itens atualmente na lista.
@@ -38,6 +54,9 @@ int lista_getSize(Lista *l);
 item lista_getHead(Lista *l);
 
 item lista_getTail(Lista *l);
+
+item lista_getItem(Lista *l, int index);
+
 
 
 /*****************************************************************
@@ -72,23 +91,6 @@ void lista_removeTail(Lista *l);
 
 
 
-/*****************************************************************************
-*@brief Percorre a lista e executa uma função 'acao' para cada item.
-* (Modelado a partir de fila_passthrough)
-*@param l Ponteiro para a lista.
-*@param acao A função de callback a ser executada em cada item.
-*@param aux_data Um ponteiro auxiliar para ser passado para a função 'acao'.
-*****************************************************************************/
-void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_data);
-
-
-
-/******************************************************************
-*@brief Libera toda a memória alocada pelos nós da lista.
-*@note NÃO libera a memória dos 'itens' (dados) armazenados.
-*@param l Ponteiro para a lista a ser destruída.
-******************************************************************/
-void lista_destroy(Lista *l);
 
 
 #endif
