@@ -7,7 +7,7 @@
 
 typedef struct stEvent Evento;
 
-Evento visibilidade_prepSegments(Lista *anteparos, Ponto bomb, int *event_count);
+Evento *visibilidade_prepSegments(Lista *anteparos, Ponto bomb, int *event_count);
 
 Ponto visibilidade_rayCollision(Arvore *active_seg, Ponto bomb, double angle, double max_radius);
 
