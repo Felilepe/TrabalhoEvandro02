@@ -7,6 +7,8 @@
 #include "fila.h"
 #include "linha.h"
 #include "texto.h"
+#include "poligono.h"
+#include "anteparo.h"
 #include "formas.h"
 
 /******************************************************************
@@ -50,6 +52,15 @@ void svg_insertLinha(FILE *file_name, Linha l);
 *@param t O Texto a ser desenhado.
 ******************************************************************/
 void svg_insertTexto(FILE *file_name, Texto t);
+
+void svg_insertPoligonoVis(FILE *file_name, Poligono p); 
+
+void svg_insertAnteparo(FILE *file_name, Anteparo a);
+
+void svg_insertBoundingBox(FILE *file_name, Poligono p);
+
+void svg_insertBomb(FILE *file_name, double x, double y); 
+
 
 /******************************************************************
 *@brief Insere uma forma genérica no SVG (chamada polimórfica).

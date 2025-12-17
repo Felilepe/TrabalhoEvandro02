@@ -7,6 +7,9 @@
 #include "linha.h"
 #include "texto.h"
 #include "formas.h"
+#include "anteparo.h"
+#include "poligono.h"
+#include "pontos.h"
 
 #define DEFAULT_WIDTH 1.5
 #define OPACITY 0.5
@@ -79,6 +82,67 @@ void svg_insertTexto(FILE *file_name, Texto t)
 	}
 
     fprintf(file_name, ">%s</text>\n", texto_getTexto(t));
+}
+
+void svg_insertPoligonoVis(FILE *file_name, Poligono p) 
+{
+	if (p == NULL || file_name == NULL) return;
+
+	int n = poligono_getVerticeCount(p);
+	if (n < 3) return;
+
+	fprintf(file_name, "\t<polygon points=\"");
+
+	for (int i = 0; i < n; i++) {
+		Ponto v = poligono_getVertice(p, i);
+		fprintf(file_name, "%.4lf,%.4lf ", ponto_getCoordX(v), ponto_getCoordY(v));
+		ponto_destroy(v);
+	}
+
+	fprintf(file_name, "\" fill=\"#FF0000\" fill-opacity=\"0.2\" stroke=\"#FF0000\" stroke-width=\"2\" />\n");
+}
+
+void svg_insertAnteparo(FILE *file_name, Anteparo a) 
+{
+	if (file_name == NULL || a == NULL) return;
+
+	double x0, y0, x1, y1;
+	int id = anteparo_getID(a);
+	char *cor = anteparo_getCor(a);
+	x0 = anteparo_getCoordX1(a); y0 = anteparo_getCoordY1(a);
+	x1 = anteparo_getCoordX2(a); y1 = anteparo_getCoordY2(a);
+
+	fprintf(file_name, "\t<line id=\"%d\" x1=\"%lf\" y1=\"%lf\" x2=\"%lf\" y2=\"%lf\" stroke=\"%s\" stroke-width=\"%lf\" />\n",
+		id, x0, y0, x1, y1, cor, 1.5);
+}
+
+void svg_insertBoundingBox(FILE *file_name, Poligono p) 
+{
+	if (p == NULL || file_name == NULL) return;
+
+	double xMin, xMax, yMin, yMax;
+
+    poligono_getBBox(p, &xMin, &xMax, &yMin, &yMax);
+
+	double largura = xMax - xMin;
+	double altura = yMax - yMin;
+
+	fprintf(file_name, "\t<rect x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" "
+				 "fill=\"none\" stroke=\"red\" stroke-dasharray=\"5,5\" stroke-width=\"1.5\" />\n", xMin, yMin, largura, altura);
+}
+
+void svg_insertBomb(FILE *file_name, double x, double y) 
+{
+	if (file_name == NULL) return;
+
+	fprintf(file_name, "<circle cx=\"%lf\" cy=\"%lf\" r=\"1\" stroke-opacity=\"0.5\" fill=\"none\""
+			  " stroke=\" #FF0000\" stroke-width=\"2\" stroke-dasharray=\"1, 1\" />\n", x, y);
+
+	fprintf(file_name, "<circle cx=\"%lf\" cy=\"%lf\" r=\"3\" stroke-opacity=\"0.5\" fill=\"none\""
+			  " stroke=\" #FF0000\" stroke-width=\"2\" stroke-dasharray=\"1, 1\" />\n", x, y);
+
+	fprintf(file_name, "<circle cx=\"%lf\" cy=\"%lf\" r=\"2\" stroke-opacity=\"0.5\" fill=\"none\""
+			  " stroke=\"#FF00FF\" stroke-width=\"2\" stroke-dasharray=\"1, 1\" />\n", x, y);
 }
 
 void svg_insertForma(FILE *file_name, forma f)
