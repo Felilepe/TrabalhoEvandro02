@@ -6,11 +6,11 @@
 
 double geometria_calcAngle(Ponto ob, Ponto main);
 
-double geometria_distSqrd(double x1, double y1, double x2, double y2);
+double geometria_distSqrd(Ponto a, Ponto b);
 
-double geometria_prodVet(double px, double py, double qx, double qy, double rx, double ry);
+int geometria_prodVet(Ponto p, Ponto q, Ponto r);
 
-bool geometria_isPointOnSeg(double px, double py, double qx, double qy, double rx, double ry);
+bool geometria_isPointOnSeg(Ponto p, Ponto q, Ponto r);
 
 double geometria_distPointSeg(Ponto p, Anteparo s);
 
