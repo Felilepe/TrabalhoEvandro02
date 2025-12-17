@@ -1,15 +1,13 @@
-#ifndef PROCESSAGEO_H
-#define PROCESSAGEO_H
+#ifndef LERGEO_H
+#define LERGEO_H
 
-#include "fila.h"
-
-typedef Fila Chao;
+#include "lista.h"
 
 /******************************************************************
 *@brief Processa um arquivo .geo e carrega as formas no Chão.
 *@param nome_path_geo O caminho completo para o arquivo .geo.
 *@return Um ponteiro para o Chão (Fila*) contendo todas as formas lidas.
 ******************************************************************/
-Chao *processaGeo(const char *nome_path_geo);
+Lista *processaGeo(const char *nome_path_geo);
 
 #endif 

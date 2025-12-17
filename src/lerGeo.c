@@ -1,10 +1,10 @@
     #include "lerGeo.h"
-    #include "fila.h"
     #include "circulo.h"
     #include "linha.h"
     #include "retangulo.h"
     #include "texto.h"
     #include "formas.h"
+    #include "lista.h"
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -36,7 +36,7 @@
     }
 
 
-    static void geo_processarCirc(const char* Linha, Chao* meuChao) 
+    static void geo_processarCirc(const char* Linha, Lista* formas) 
     {
         int id;
         double x, y, r;
@@ -46,10 +46,10 @@
         if (num_lidos < 4) return;
 
         Circulo c = circulo_create(id, x, y, r, corb, corp);
-        fila_queue(meuChao, c);
+        lista_insertTail(formas, c);
     }
 
-    static void geo_processarRet(const char* Linha, Chao* meuChao) 
+    static void geo_processarRet(const char* Linha, Lista* formas) 
     {
         int id;
         double x, y, w, h;
@@ -59,10 +59,10 @@
         if (num_lidos < 5) return;
 
         Retangulo r = retangulo_create(id, x, y, w, h, corb, corp);
-        fila_queue(meuChao, r);
+        lista_insertTail(formas, r);
     }
 
-    static void geo_processarLinha(const char* Linha_buffer, Chao* meuChao) 
+    static void geo_processarLinha(const char* Linha_buffer, Lista *formas) 
     {
         int id;
         double x1, y1, x2, y2;
@@ -72,10 +72,10 @@
         if (num_lidos < 5) return;
 
         Linha l = linha_create(id, x1, y1, x2, y2, cor, false);
-        fila_queue(meuChao, l);
+        lista_insertTail(formas, l);
     }
 
-    static void geo_processarTxto(const char* Linha_buffer, Chao* meuChao) 
+    static void geo_processarTxto(const char* Linha_buffer, Lista *formas) 
     {
         int id;
         double x, y;
@@ -108,7 +108,7 @@
         Texto t = texto_create(id, x, y, corb, corp, ancora, conteudo_Texto);
 
         if (t) {
-            fila_queue(meuChao, t);
+            lista_insertTail(formas, t);
         }
     }
 
@@ -136,19 +136,19 @@
     }
 
 
-    static void processar_comando(const char* Linha_buffer, const char* comando, Chao* meuChao) 
+    static void processar_comando(const char* Linha_buffer, const char* comando, Lista* formas) 
     {    
         if (strcmp(comando, "c") == 0) {
-            geo_processarCirc(Linha_buffer, meuChao);
+            geo_processarCirc(Linha_buffer, formas);
         }
         else if (strcmp(comando, "r") == 0) {
-            geo_processarRet(Linha_buffer, meuChao);
+            geo_processarRet(Linha_buffer, formas);
         }
         else if (strcmp(comando, "l") == 0) {
-            geo_processarLinha(Linha_buffer, meuChao);
+            geo_processarLinha(Linha_buffer, formas);
         }
         else if (strcmp(comando, "t") == 0) {
-            geo_processarTxto(Linha_buffer, meuChao);
+            geo_processarTxto(Linha_buffer, formas);
         }
         else if (strcmp(comando, "ts") == 0) {
             processar_estilo_Texto(Linha_buffer);
@@ -156,7 +156,7 @@
     }
 
 
-    Chao* processaGeo(const char *nome_path_geo) 
+    Lista* processaGeo(const char *nome_path_geo) 
     {
         FILE *arquivo_geo = fopen(nome_path_geo, "r");
         if (arquivo_geo == NULL) {
@@ -164,8 +164,8 @@
             return NULL;
         }
 
-        Chao *meuChao = fila_create();
-        if (meuChao == NULL) {
+        Lista *formas = lista_create();
+        if (formas == NULL) {
             fclose(arquivo_geo);
             return NULL;
         }
@@ -178,9 +178,9 @@
             sscanf(Linha_buffer, "%s", comando);
 
 
-            processar_comando(Linha_buffer, comando, meuChao);
+            processar_comando(Linha_buffer, comando, formas);
         }
 
         fclose(arquivo_geo);
-        return meuChao;
+        return formas;
     }
