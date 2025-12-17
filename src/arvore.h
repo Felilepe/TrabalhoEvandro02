@@ -33,7 +33,7 @@ int arvore_getHeight(Arvore *a);
 
 int arvore_getSize(Arvore *a);
 
-ArvNode* arvore_getRootNode(Arvore *n);
+ArvNode* arvore_getRootNode(Arvore *a);
 
 ArvNode* arvore_getRightNode(ArvNode *n);
 
