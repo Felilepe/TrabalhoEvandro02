@@ -9,9 +9,9 @@ typedef void *item;
 
 int sort_doubleCompare(const item a, const item b);
 
-void insertionSort(item base, size_t element_count, size_t element_size, int (*sort_compare)(const item a, const item b));
+void insertionSort(item base, size_t element_count, size_t element_size, int (*cmp)(const item a, const item b));
 
-void mergeSort(item base, size_t element_count, size_t element_size, int (*sort_compare)(const item a, const item b), int threshold);
+void mergeSort(item base, size_t element_count, size_t element_size, int (*cmp)(const item a, const item b), int threshold);
 
 
 #endif
