@@ -21,7 +21,7 @@ bool poligono_isInside(Poligono p, Ponto pp);
 void poligono_destroy(Poligono p);
 
 
-void poigono_getBBox(Poligono p, double *xMin, double *xMax, double *yMin, double *yMax);
+void poligono_getBBox(Poligono p, double *xMin, double *xMax, double *yMin, double *yMax);
 
 Ponto poligono_getVertice(Poligono p, int index);
 
