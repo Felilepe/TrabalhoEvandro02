@@ -1,5 +1,6 @@
 #ifndef ANTEPARO_H
 #define ANTEPARO_H
+#include "pontos.h"
 
 typedef void *Anteparo;
 
@@ -19,6 +20,10 @@ double anteparo_getCoordX2(Anteparo a);
 double anteparo_getCoordY2(Anteparo a);
 
 char *anteparo_getCor(Anteparo a);
+
+Ponto anteparo_getP1(Anteparo a);
+
+Ponto anteparo_getP2(Anteparo a);
 
 
 
