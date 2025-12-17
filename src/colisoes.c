@@ -373,7 +373,6 @@ static bool colisao_linhaPoly(Linha l, Poligono p)
 
 static bool colisao_txtoPoly(Texto t, Poligono p) {
     Linha temp_linha = conversaoTxtoLinha(t);
-(t);
     bool resultado = colisao_linhaPoly(temp_linha, p);
     linha_destroy(temp_linha);
     return resultado;
