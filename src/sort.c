@@ -6,7 +6,7 @@
 // --- Funções Auxiliares ---
 
 static void merge(char *base, size_t left, size_t mid, size_t right, size_t element_size, 
-                  int (*cmp)(const item a, const item b))  // Função interna para mesclar dois sub-arrays ordenados
+                  int (*cmp)(const void* a, const void* b))  // Função interna para mesclar dois sub-arrays ordenados
 {
     size_t i = left;
     size_t j = mid + 1;
@@ -48,7 +48,7 @@ static void merge(char *base, size_t left, size_t mid, size_t right, size_t elem
 }
 
 static void mergeSortRecursive(char *base, size_t left, size_t right, size_t element_size, 
-                               int (*cmp)(const item a, const item b), int threshold) 
+                               int (*cmp)(const void* a, const void* b), int threshold) 
                                {
     if (left >= right) return;
 
@@ -70,7 +70,7 @@ static void mergeSortRecursive(char *base, size_t left, size_t right, size_t ele
 
 // --- Funções Públicas ---
 
-int sort_doubleCompare(const item a, const item b) 
+int sort_doubleCompare(const void* a, const void* b) 
 {
     const double *x = (const double *)a;
     const double *y = (const double *)b;
@@ -82,8 +82,8 @@ int sort_doubleCompare(const item a, const item b)
 
 
 
-void mergeSort(item base, size_t element_count, size_t element_size, 
-               int (*cmp)(const item a, const item b), int threshold) 
+void mergeSort(void* base, size_t element_count, size_t element_size, 
+               int (*cmp)(const void* a, const void* b), int threshold) 
 {
     if (element_count <= 1) return;
     
@@ -92,8 +92,8 @@ void mergeSort(item base, size_t element_count, size_t element_size,
 
 
 
-void insertionSort(item base, size_t element_count, size_t element_size, 
-                   int (*cmp)(const item a, const item b)) 
+void insertionSort(void* base, size_t element_count, size_t element_size, 
+                   int (*cmp)(const void* a, const void* b)) 
 {
     char *ptr = (char *)base;
     
