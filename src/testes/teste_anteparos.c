@@ -167,7 +167,6 @@ void test_multiplas_formas_isoladas() {
 
 int main() 
 {
-    setbuf(stdout, NULL); // Desliga o buffer. Todo printf aparecerá na hora!
     printf("INICIANDO TESTES DA FUNÇÃO FORMA_toTIPO_A\n\n");
 
     test_circulo_anteparo();
