@@ -112,5 +112,5 @@ Anteparo linha_toAnteparo(Linha l, int *id_next)
     double y2 = linha_getCoordY2(l);
     char *cor = linha_getCor(l);
 
-    return anteparo_create(++(id_next), x1, y1, x2, y2, cor);
+    return anteparo_create(++(*id_next), x1, y1, x2, y2, cor);
 }

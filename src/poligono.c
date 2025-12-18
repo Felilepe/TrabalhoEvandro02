@@ -158,12 +158,14 @@ static void ray_cast_callback(void* item, void* aux) //3. Função auxiliar de c
     ctx->anterior = atual;
 }
 
-bool poligono_isInside(Poligono p, double px, double py) //4. Função principal
+bool poligono_isInside(Poligono p, Ponto pp) //4. Função principal
 
 {
     if (p == NULL || poligono_getVerticeCount(p) < 3) return false;
 
     poligono* poli = (poligono*)p;
+    double px = ponto_getCoordX(pp);
+    double py = ponto_getCoordY(pp);
 
     if (!poli->valid_bbox) {
         poligono_calcBBox(p);

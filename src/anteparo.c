@@ -24,10 +24,12 @@ Anteparo anteparo_create(int id, double x1, double y1, double x2, double y2, con
     }
     a->id = id;
     a->type = TIPO_A;
+    a -> p1 = NULL;
+    a -> p2 = NULL;
     ponto_setCoordX(a -> p1, x1);
     ponto_setCoordY(a -> p1, y1);
     ponto_setCoordX(a -> p2, x2);
-    ponto_setCoordy(a -> p2, y2);
+    ponto_setCoordY(a -> p2, y2);
     a->cor = (char*) malloc((strlen(cor) + 1) * sizeof(char));
     if (a->cor == NULL) {
         fprintf(stderr, "Erro ao alocar memória para a cor do anteparo em anteparo_create.\n");

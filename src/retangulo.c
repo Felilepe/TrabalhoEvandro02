@@ -121,10 +121,10 @@ Lista *retangulo_toAnteparo(Retangulo r, int *id_next)
     double w = retangulo_getWidth(r);
     char *cor = retangulo_getCorBorda(r);
 
-    Anteparo topo = anteparo_create(++(id_next), x,(y + h), (x + w), (y + h), cor);
-    Anteparo esq = anteparo_create(++(id_next), x, y, x, (y + h), cor);
-    Anteparo dir = anteparo_create(++(id_next), (x + w), y, (x + w), (y + h), cor);
-    Anteparo chao = anteparo_create(++(id_next), x, y, (x + w), y, cor);
+    Anteparo topo = anteparo_create(++(*id_next), x,(y + h), (x + w), (y + h), cor);
+    Anteparo esq = anteparo_create(++(*id_next), x, y, x, (y + h), cor);
+    Anteparo dir = anteparo_create(++(*id_next), (x + w), y, (x + w), (y + h), cor);
+    Anteparo chao = anteparo_create(++(*id_next), x, y, (x + w), y, cor);
 
     lista_insertTail(anteparos, topo);      
     lista_insertTail(anteparos, esq);

@@ -579,7 +579,7 @@ Lista *forma_toAnteparo(forma f, char orientacao)
             break;
         } 
         case TIPO_R:{
-            anteparos = retangulo_toAnteparo;
+            anteparos = retangulo_toAnteparo((Retangulo)f, &id_novo);
             break;
         }
         case TIPO_L:{

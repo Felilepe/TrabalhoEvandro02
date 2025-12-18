@@ -292,5 +292,5 @@ Anteparo texto_toAnteparo(Texto t, int *id_next)
 {
     Linha txto_convertido = conversaoTxtoLinha(t);
 
-    return linha_toAnteparo(txto_convertido, *id_next);
+    return linha_toAnteparo(txto_convertido, id_next);
 }
