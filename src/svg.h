@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "retangulo.h"
 #include "circulo.h"
-#include "fila.h"
+#include "lista.h"
 #include "linha.h"
 #include "texto.h"
 #include "poligono.h"
@@ -83,7 +83,7 @@ void draw(item i, item aux);
 *@param file_name O caminho completo do arquivo .svg a ser criado.
 *@param formas A Fila (Chao*) contendo todas as formas a serem desenhadas.
 ******************************************************************/
-void createSVG(char *file_name, Fila *formas);
+FILE *createSVG(const char *svg_path, Lista *formas);
 
 
 
