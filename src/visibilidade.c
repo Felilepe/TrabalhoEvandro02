@@ -160,14 +160,14 @@ static void insert_visibility_point(Poligono vis, Arvore *seg_ativos, Ponto bomb
 
 
 // Função auxiliar para inserir itens de uma lista em outra
-void helper_inserir_na_lista(void *dado, void *lista_destino) 
+static void helper_inserir_na_lista(void *dado, void *lista_destino) 
 {
     Lista *dest = (Lista *)lista_destino;
     lista_insertTail(dest, dado);
 }
 
 // Função auxiliar para destruir anteparos (adaptador para assinatura do passthrough)
-void helper_destruir_anteparo(void *dado, void *ignore) //"Unused parameter" é um parâmetro de                                                       
+static void helper_destruir_anteparo(void *dado, void *ignore) //"Unused parameter" é um parâmetro de                                                       
 {                                                       //compatibilidade com lista_passthrough
     anteparo_destroy(dado); 
 }
