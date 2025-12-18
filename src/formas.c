@@ -566,32 +566,50 @@ Lista *forma_toAnteparo(forma f, char orientacao)
 {
     int type = forma_getType(f);
     
-    static int id_anteparo= 10000;
+    // Gerenciamento de ID
+    static int id_anteparo = 10000;
     int id_novo = ++id_anteparo;
 
-    Lista *anteparos = lista_create();
-
+    Lista *lista_resultado = NULL;
 
     switch(type){
-        case TIPO_C:{
-            ; 
-            lista_insertTail(anteparos, circulo_toAnteparo((Circulo)f, orientacao, &id_novo));
+        // --- CASO 1: A função retorna um ÚNICO ITEM (void*) ---
+        case TIPO_C: {
+            lista_resultado = lista_create();
+            // A função retorna um ponteiro para o Anteparo, guardamos em 'item'
+            void *item_anteparo = circulo_toAnteparo((Circulo)f, orientacao, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
             break;
         } 
-        case TIPO_R:{
-            anteparos = retangulo_toAnteparo((Retangulo)f, &id_novo);
+        
+        case TIPO_L: {
+            lista_resultado = lista_create();
+            // Ajeitei para linha_toAnteparo (antes estava chamando texto_toAnteparo errado)
+            void *item_anteparo = linha_toAnteparo((Linha)f, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
             break;
         }
-        case TIPO_L:{
-            lista_insertTail(anteparos, texto_toAnteparo((Texto)f, &id_novo));
+
+        case TIPO_T: {
+            lista_resultado = lista_create();
+            void *item_anteparo = texto_toAnteparo((Texto)f, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
             break;
         }
-        case TIPO_T:{
-            lista_insertTail(anteparos, texto_toAnteparo((Texto)f, &id_novo));
+
+        // --- CASO 2: A função já retorna uma LISTA ---
+        case TIPO_R: {
+            // Retângulo gera 4 linhas, então ele já devolve a lista pronta
+            lista_resultado = retangulo_toAnteparo((Retangulo)f, &id_novo);
             break;
         }
-        default: printf("Aviso: Tipo de forma invalido em forma_toAnteparo. Retornando Lista vazia");
+
+        // --- CASO DE ERRO / OUTROS ---
+        default: 
+            // Para segurança, retornamos lista vazia se for tipo desconhecido ou Anteparo
+            lista_resultado = lista_create();
+            break;
     }
 
-    return anteparos;
+    return lista_resultado;
 }
