@@ -273,7 +273,7 @@ void texto_destroy(Texto t){
 
 
 
-Linha conversaoTxtoLinha(Texto t) //Cria uma linha utilizando as coordenadas de um texto
+Linha conversaoTxtoLinha(Texto t) 
 {
     double x1, x2;
     double y1, y2;
