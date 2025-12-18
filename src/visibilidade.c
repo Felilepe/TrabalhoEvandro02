@@ -12,6 +12,8 @@
 #define PI 3.14159265358
 #define EPSILON 1e-10
 #define EPSILON_ANGULAR 1e-4
+#define SEGMENT_ID_START 9000
+#define FORMA_CLONE_ID_START 10000
 
 
 typedef enum EnEventType 
@@ -245,6 +247,8 @@ Evento *visibilidade_prepSegments(Lista *anteparos, Ponto bomb, int *event_count
             vetor_eventos[k++] = (Evento){id, ang1, dist, INICIO, a};
             vetor_eventos[k++] = (Evento){id, ang2, dist, FIM, a};
         }
+        ponto_destroy(p0);
+        ponto_destroy(p1);
     }
 
     *event_count = k;

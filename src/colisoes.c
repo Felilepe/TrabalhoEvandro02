@@ -171,12 +171,11 @@ static bool colisao_retPoly(Retangulo r, Poligono p)
     double w = retangulo_getWidth(r);
     double h = retangulo_getHeight(r);
 
-    // Verifica se os vértices do retângulo estão dentro do polígono
     Ponto cantos[4];
-    cantos[0] = ponto_create(x, y);         // infEsq
-    cantos[1] = ponto_create(x + w, y);     // supEsq
-    cantos[2] = ponto_create(x + w, y + h); // supDir
-    cantos[3] = ponto_create(x, y + h);     // infDir
+    cantos[0] = ponto_create(x, y);         
+    cantos[1] = ponto_create(x + w, y);     
+    cantos[2] = ponto_create(x + w, y + h); 
+    cantos[3] = ponto_create(x, y + h);     
 
     bool algumCantoDentro = false;
     for (int i = 0; i < 4; i++) {
@@ -186,21 +185,19 @@ static bool colisao_retPoly(Retangulo r, Poligono p)
         }
     }
 
-    // Libera memória dos cantos
     for (int i = 0; i < 4; i++) ponto_destroy(cantos[i]);
 
     if (algumCantoDentro) return true;
 
-    // Verifica se algum vértice do polígono está dentro do retângulo
     int n_vertices = poligono_getVerticeCount(p);
     for (int i = 0; i < n_vertices; i++) {
         Ponto v = poligono_getVertice(p, i);
         bool inside = ponto_dentro_retangulo(r, v);
-        ponto_destroy(v);
+        
+        
         if (inside) return true;
     }
 
-    // Verifica intersecção de arestas
     Lista *bordas_poligonos = poligono_getSegments(p);
     bool interseccao = false;
 
@@ -225,25 +222,23 @@ static bool colisao_circPoly(Circulo c, Poligono p)
 
     Ponto temp_c = ponto_create(cx, cy);
 
-    // Centro do círculo dentro do polígono
     if (poligono_isInside(p, temp_c)) {
         ponto_destroy(temp_c);
         return true;
     }
 
-    // Algum vértice do polígono dentro do círculo
     int n_vertices = poligono_getVerticeCount(p);
     for (int i = 0; i < n_vertices; i++) {
         Ponto v = poligono_getVertice(p, i);
         bool inside = ponto_dentro_circulo(c, v);
-        ponto_destroy(v);
+        
+        
         if (inside) {
             ponto_destroy(temp_c);
             return true;
         }
     }
 
-    // Intersecção de arestas
     Lista *bordas_poligono = poligono_getSegments(p);
     bool intersecao = false;
 
@@ -257,13 +252,13 @@ static bool colisao_circPoly(Circulo c, Poligono p)
 
     lista_passthrough(bordas_poligono, helper_destruir_linha, NULL);
     lista_destroy(bordas_poligono);
+    
     ponto_destroy(temp_c);
 
     return intersecao;
 }
 
 static bool sobrepoe_anteparo_linha(Anteparo l1, Linha l2) {
-    // [CORREÇÃO]: Usar variáveis locais para evitar chamadas repetidas que alocam memória
     Ponto p0 = anteparo_getP1(l1);
     Ponto p1 = anteparo_getP2(l1);
 
@@ -275,7 +270,6 @@ static bool sobrepoe_anteparo_linha(Anteparo l1, Linha l2) {
     Ponto p2 = ponto_create(p2_x, p2_y);
     Ponto p3 = ponto_create(p3_x, p3_y);
 
-    // [CORREÇÃO]: Usar double em vez de int para não perder precisão
     double o1 = geometria_prodVet(p0, p1, p2);
     double o2 = geometria_prodVet(p0, p1, p3);
     double o3 = geometria_prodVet(p2, p3, p0);
@@ -283,19 +277,16 @@ static bool sobrepoe_anteparo_linha(Anteparo l1, Linha l2) {
 
     bool colidiu = false;
 
-    // Caso Geral: Sinais opostos (Cruzamento estrito)
     if (((o1 > EPSILON && o2 < -EPSILON) || (o1 < -EPSILON && o2 > EPSILON)) &&
         ((o3 > EPSILON && o4 < -EPSILON) || (o3 < -EPSILON && o4 > EPSILON))) {
         colidiu = true;
     }
-    // Casos Especiais (Toque ou Colinearidade)
     else if (fabs(o1) < EPSILON && geometria_isPointOnSeg(p0, p2, p1)) colidiu = true;
     else if (fabs(o2) < EPSILON && geometria_isPointOnSeg(p0, p3, p1)) colidiu = true;
     else if (fabs(o3) < EPSILON && geometria_isPointOnSeg(p2, p0, p3)) colidiu = true;
     else if (fabs(o4) < EPSILON && geometria_isPointOnSeg(p2, p1, p3)) colidiu = true;
 
-    ponto_destroy(p0);
-    ponto_destroy(p1);
+
     ponto_destroy(p2);
     ponto_destroy(p3);
     
@@ -307,17 +298,13 @@ static bool colisao_antePoly(Anteparo pp, Poligono p)
     // [CORREÇÃO CRÍTICA]: Evitar Memory Leak (recuperar, testar, destruir)
     Ponto p1 = anteparo_getP1(pp);
     if (poligono_isInside(p, p1)) {
-        ponto_destroy(p1);
         return true;
     }
-    ponto_destroy(p1);
 
     Ponto p2 = anteparo_getP2(pp);
     if (poligono_isInside(p, p2)) {
-        ponto_destroy(p2);
         return true;
     }
-    ponto_destroy(p2);
 
     Lista *bordas_poligono = poligono_getSegments(p);
     bool intersecao = false;

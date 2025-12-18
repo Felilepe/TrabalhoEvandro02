@@ -191,21 +191,35 @@ double texto_calcArea(Texto t) {return 2 * calcComp(((texto*)t) -> txto);}
 
 void texto_setNewStyle(char *fFamily, char *fWeight, char* fSize)
 {
-    if(default_fFamily == NULL){
-        inicializarDefault();
+    if (default_fFamily != NULL) {
+        free(default_fFamily);
     }
-
-    free(default_fFamily);
-    free(default_fWeight);
-    free(default_fSize);
-
+    if (default_fWeight != NULL) {
+        free(default_fWeight);
+    }
+    if (default_fSize != NULL) {
+        free(default_fSize);
+    }
+    
     default_fFamily = (char*)malloc(strlen(fFamily) + 1);
+    if (default_fFamily == NULL) {
+        printf("Erro ao alocar memoria para fFamily em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fFamily, fFamily);
 
     default_fWeight = (char*)malloc(strlen(fWeight) + 1);
+    if (default_fWeight == NULL) {
+        printf("Erro ao alocar memoria para fWeight em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fWeight, fWeight);
 
     default_fSize = (char*)malloc(strlen(fSize) + 1);
+    if (default_fSize == NULL) {
+        printf("Erro ao alocar memoria para fSize em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fSize, fSize);
 }
 

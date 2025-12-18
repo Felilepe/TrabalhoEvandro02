@@ -85,7 +85,8 @@ int sort_doubleCompare(const void* a, const void* b)
 void mergeSort(void* base, size_t element_count, size_t element_size, 
                int (*cmp)(const void* a, const void* b), int threshold) 
 {
-    if (element_count <= 1) return;
+    if (base == NULL || cmp == NULL || element_count <= 1) return;
+    if (element_size == 0) return;    
     
     mergeSortRecursive((char *)base, 0, element_count - 1, element_size, cmp, threshold);
 }

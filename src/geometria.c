@@ -41,14 +41,14 @@ int geometria_prodVet(Ponto p, Ponto q, Ponto r)
     double val = (qx - px) * (ry - py) - (qy - py) * (rx - px);
 
     if(fabs(val) < EPSILON) return 0;
-    return (fabs(val) > 0) ? 1 : 2;
+    return (val) > 0 ? 1 : 2;
 }
 
 bool geometria_isPointOnSeg(Ponto p, Ponto a, Ponto b) 
 {
-    double pv = geometria_prodVet(p, a, b); 
+    int pv = geometria_prodVet(p, a, b); 
     
-    if (fabs(pv) > EPSILON) return false; 
+    if (pv != 0) return false; 
 
     double px = ponto_getCoordX(p);
     double py = ponto_getCoordY(p);

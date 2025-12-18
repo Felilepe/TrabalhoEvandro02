@@ -9,6 +9,8 @@
 #include "formas.h"
 #include "anteparo.h"
 
+#define SEGMENT_ID_START 9000
+#define FORMA_CLONE_ID_START 10000
 
 typedef struct forma_g
 {
@@ -155,7 +157,7 @@ void forma_exportarDados(forma f, FILE *file_name, char* report_QRY)
 forma forma_clonar(forma f) {
     if (f == NULL) return NULL;
 
-    static int max_id = 10000;
+    static int max_id = FORMA_CLONE_ID_START;
     int novo_id = ++max_id;
     int tipo = forma_getType(f); 
     

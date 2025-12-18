@@ -5,7 +5,7 @@
 #include <float.h>
 
 #define EPSILON 1e-10
-
+#define SEGMENT_ID_START 9000
 
 typedef struct stPoligono
 {
@@ -308,7 +308,7 @@ Lista *poligono_getSegments(Poligono p)
     poligono *poli = (poligono*)p;
     
     Lista *segment_list = lista_create();
-    static int segment_id = 9000;
+    static int segment_id = SEGMENT_ID_START;
 
     ContextoPoligono ctx;
     ctx.listaSegmentos = segment_list;

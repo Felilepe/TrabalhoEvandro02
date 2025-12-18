@@ -10,7 +10,7 @@ double geometria_distSqrd(Ponto a, Ponto b);
 
 int geometria_prodVet(Ponto p, Ponto q, Ponto r);
 
-bool geometria_isPointOnSeg(Ponto p, Ponto q, Ponto r);
+bool geometria_isPointOnSeg(Ponto p, Ponto a, Ponto b);
 
 double geometria_distPointSeg(Ponto p, Anteparo s);
 
