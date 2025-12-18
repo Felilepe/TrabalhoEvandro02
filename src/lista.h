@@ -89,6 +89,7 @@ void lista_removeHead(Lista *l);
 **********************************************************************************/
 void lista_removeTail(Lista *l);
 
+void lista_removeNode(Lista *l, int index);
 
 
 

@@ -124,6 +124,52 @@ item lista_getItem(Lista *l, int index)
     return atual->data;
 }
 
+void lista_removeNode(Lista *l, int index)
+{
+    if(l == NULL || lista_isEmpty(l)){
+        printf("Erro: Tentativa de acesso a lista vazia ou nula em lista_removeNode.");
+        exit(1);
+    }
+
+    if(index < 0 || index >= l->size){
+        printf("Erro: Indice %d invalido. A lista possui indices de 0 a %d.", index, l->size - 1);
+        exit(1);
+    }
+
+    NodeL *atual;
+
+    if (index < l->size / 2) {
+        atual = l->head;
+        for (int i = 0; i < index; i++) {
+            atual = atual->next;
+        }
+    } 
+    else {
+        atual = l->tail;
+        for (int i = l->size - 1; i > index; i--) {
+            atual = atual->prev;
+        }
+    }
+
+
+    if (atual->prev != NULL) {
+        atual->prev->next = atual->next;
+    } else {
+        l->head = atual->next;
+    }
+
+    if (atual->next != NULL) {
+        atual->next->prev = atual->prev;
+    } else {
+        l->tail = atual->prev;
+    }
+
+    l->size--;
+
+    
+    free(atual);
+}
+
 
 
 void lista_insertHead(Lista *l, item i)
