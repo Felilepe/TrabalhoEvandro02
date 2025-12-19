@@ -23,6 +23,13 @@ Circulo circulo_create(int id, double x, double  y, double r, char *corborda, ch
 ****************************************************************************************/
 double circulo_calcArea(Circulo c);
 
+/****************************************************************************************
+* @brief Converte um círculo em um anteparo.
+* @param c O círculo a ser convertido/utilizado.
+* @param orientacao Caractere que define a orientação do anteparo.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
 Anteparo circulo_toAnteparo(Circulo c, char orientacao, int *id_next);
 
 /****************************************************************************************

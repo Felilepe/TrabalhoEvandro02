@@ -42,8 +42,6 @@ void lista_passthrough(Lista *l, void (*acao)(item i, item aux_data), item aux_d
 ******************************************************************/
 void lista_destroy(Lista *l);
 
-
-
 /******************************************************************
 *@brief Pega o número de itens atualmente na lista.
 *@param l Ponteiro para a lista.
@@ -51,13 +49,30 @@ void lista_destroy(Lista *l);
 ******************************************************************/
 int lista_getSize(Lista *l);
 
+/******************************************************************
+*@brief Obtém o item armazenado no início (cabeça) da lista.
+*@param l Ponteiro para a lista.
+*@return O item (void*).
+*@note Encerra o programa se a lista estiver vazia.
+******************************************************************/
 item lista_getHead(Lista *l);
 
+/******************************************************************
+*@brief Obtém o item armazenado no final (cauda) da lista.
+*@param l Ponteiro para a lista.
+*@return O item (void*).
+*@note Encerra o programa se a lista estiver vazia.
+******************************************************************/
 item lista_getTail(Lista *l);
 
+/******************************************************************
+*@brief Obtém um item em uma posição específica (índice).
+*@param l Ponteiro para a lista.
+*@param index O índice do elemento desejado (0 a size-1).
+*@return O item (void*) na posição especificada.
+*@note Encerra o programa se o índice for inválido.
+******************************************************************/
 item lista_getItem(Lista *l, int index);
-
-
 
 /*****************************************************************
  *@brief Adiciona um item no início da lista.
@@ -76,22 +91,28 @@ void lista_insertTail(Lista *l, item i);
 /**********************************************************************************
 *@brief Remove e retorna o item do início da lista.
 *@param l Ponteiro para a lista.
-*@return Retorna o ponteiro para o item (void*).
-*@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
+*@return Retorna o ponteiro para o item (void*) removido.
+*@note Apenas libera o nó da lista, não o dado 'item'.
+*@note Causa 'exit(1)' se a lista estiver vazia.
 **********************************************************************************/
 void lista_removeHead(Lista *l);
 
 /**********************************************************************************
 *@brief Remove e retorna o item do fim da lista.
 *@param l Ponteiro para a lista.
-*@return Retorna o ponteiro para o item (void*).
-*@note Causa 'exit(1)' se a lista estiver vazia (consistente com fila.h/pilha.h).
+*@return Retorna o ponteiro para o item (void*) removido.
+*@note Apenas libera o nó da lista, não o dado 'item'.
+*@note Causa 'exit(1)' se a lista estiver vazia.
 **********************************************************************************/
 void lista_removeTail(Lista *l);
 
+/**********************************************************************************
+*@brief Remove um nó da lista em uma posição específica.
+*@param l Ponteiro para a lista.
+*@param index O índice do nó a ser removido (0 a size-1).
+*@note Apenas libera o nó da lista, não o dado 'item'.
+*@note Encerra o programa se o índice for inválido.
+**********************************************************************************/
 void lista_removeNode(Lista *l, int index);
-
-
-
 
 #endif

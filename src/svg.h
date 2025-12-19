@@ -42,7 +42,7 @@ void svg_insertRetangulo(FILE *file_name, Retangulo r);
 /******************************************************************
 *@brief Insere a tag SVG para uma Linha no arquivo.
 *@param file_name O ponteiro (FILE*) para o arquivo SVG.
-*@param l A Linha a ser desenhado.
+*@param l A Linha a ser desenhada.
 ******************************************************************/
 void svg_insertLinha(FILE *file_name, Linha l);
 
@@ -53,12 +53,33 @@ void svg_insertLinha(FILE *file_name, Linha l);
 ******************************************************************/
 void svg_insertTexto(FILE *file_name, Texto t);
 
+/******************************************************************
+*@brief Insere a representação visual de um Polígono de Visibilidade.
+*@param file_name O ponteiro (FILE*) para o arquivo SVG.
+*@param p O Polígono a ser desenhado.
+******************************************************************/
 void svg_insertPoligonoVis(FILE *file_name, Poligono p); 
 
+/******************************************************************
+*@brief Insere a representação visual de um Anteparo (obstáculo).
+*@param file_name O ponteiro (FILE*) para o arquivo SVG.
+*@param a O Anteparo a ser desenhado.
+******************************************************************/
 void svg_insertAnteparo(FILE *file_name, Anteparo a);
 
+/******************************************************************
+*@brief Desenha a Bounding Box (caixa envolvente) de um polígono.
+*@param file_name O ponteiro (FILE*) para o arquivo SVG.
+*@param p O polígono do qual a Bounding Box será desenhada.
+******************************************************************/
 void svg_insertBoundingBox(FILE *file_name, Poligono p);
 
+/******************************************************************
+*@brief Insere uma marcação visual (ex: um "X" ou círculo) representando uma "Bomba" ou ponto de impacto.
+*@param file_name O ponteiro (FILE*) para o arquivo SVG.
+*@param x A coordenada X do ponto.
+*@param y A coordenada Y do ponto.
+******************************************************************/
 void svg_insertBomb(FILE *file_name, double x, double y); 
 
 
@@ -81,10 +102,9 @@ void draw(item i, item aux);
 /******************************************************************
 *@brief Função principal que gera o arquivo SVG completo.
 *@param file_name O caminho completo do arquivo .svg a ser criado.
-*@param formas A Fila (Chao*) contendo todas as formas a serem desenhadas.
+*@param formas A Fila/Lista contendo todas as formas a serem desenhadas.
+*@return Retorna o ponteiro para o arquivo criado (FILE*).
 ******************************************************************/
-FILE *createSVG(const char *svg_path, Lista *formas);
-
-
+FILE *createSVG(const char *file_name, Lista *formas);
 
 #endif

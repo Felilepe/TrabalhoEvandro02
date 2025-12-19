@@ -18,6 +18,11 @@ typedef void* Texto;
 ******************************************************************/
 Texto texto_create(int id, double x, double y, char *corborda, char *corpreench, char a, char* txto);
 
+/****************************************************************************************
+* @brief Converte uma texto em uma linha.
+* @param t O texto a ser convertido.
+* @return Retorna um objeto do tipo Linha.
+****************************************************************************************/
 Linha conversaoTxtoLinha(Texto t);
 
 /******************************************************************
@@ -33,7 +38,12 @@ void texto_destroy(Texto t);
 ******************************************************************/
 double texto_calcArea(Texto t);
 
-
+/****************************************************************************************
+* @brief Converte uma linha em um anteparo.
+* @param t O texto a ser convertido/utilizado.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
 Anteparo texto_toAnteparo(Texto t, int *id_next);
 
 

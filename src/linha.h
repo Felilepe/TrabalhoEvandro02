@@ -31,6 +31,12 @@ void linha_destroy(Linha l);
 ******************************************************************/
 double linha_calcArea(Linha l);
 
+/****************************************************************************************
+* @brief Converte uma linha em um anteparo.
+* @param l A linnha a ser convertida/utilizada.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
 Anteparo linha_toAnteparo(Linha l, int *id_next);
 
 

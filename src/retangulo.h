@@ -31,6 +31,12 @@ double retangulo_calcArea(Retangulo r);
 ****************************************************************************************/
 void retangulo_destroy(Retangulo r);
 
+/****************************************************************************************
+* @brief Converte um retângulo em um anteparo.
+* @param l O retângulo a ser convertido/utilizado.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
 Lista *retangulo_toAnteparo(Retangulo r, int *id_next);
 
 

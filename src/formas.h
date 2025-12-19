@@ -53,6 +53,12 @@ forma forma_clonar(forma f);
 ******************************************************************/
 void forma_exportarDados(forma f, FILE *file_name, char* report_QRY);
 
+/******************************************************************
+*@brief Converte uma forma genérica em uma lista de anteparos.
+*@param f A forma genérica a ser convertida.
+*@param orientacao Caractere definindo a orientação (se aplicável).
+*@return Uma lista contendo os anteparos gerados.
+******************************************************************/
 Lista *forma_toAnteparo(forma f, char orientacao);
 
 
