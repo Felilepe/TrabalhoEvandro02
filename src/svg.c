@@ -152,11 +152,12 @@ void svg_insertForma(FILE *file_name, forma f)
         case(TIPO_R): svg_insertRetangulo(file_name, (Retangulo)f); break;
         case(TIPO_L): svg_insertLinha(file_name, (Linha)f); break;
         case(TIPO_T): svg_insertTexto(file_name, (Texto)f); break;
+        case(TIPO_A): svg_insertAnteparo(file_name, (Anteparo)f); break;
         default: printf("--- ERRO DE DEBUG ---\\n");
             printf("A forma com ID: %d retornou um TIPO desconhecido: %d\\n", forma_getID(f), forma_getType(f));
-            printf("(Esperado: 1, 2, 3 ou 4)\\n");
+            printf("(Esperado: 1, 2, 3, 4 ou 5)\\n");
             printf("---------------------\\n");
-            exit(1); 
+            return; 
             break;
     }
 }
