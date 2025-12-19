@@ -305,6 +305,8 @@ Linha conversaoTxtoLinha(Texto t)
 Anteparo texto_toAnteparo(Texto t, int *id_next)
 {
     Linha txto_convertido = conversaoTxtoLinha(t);
+    Anteparo resultado = linha_toAnteparo(txto_convertido, id_next);
+    linha_destroy(txto_convertido);
+    return resultado;
 
-    return linha_toAnteparo(txto_convertido, id_next);
 }

@@ -14,7 +14,7 @@ SOURCES   := $(wildcard *.c)
 MAIN_FILE := main.c 
 
 # 3. Define onde está o seu teste
-TEST_SRC  := testes/teste_anteparos.c
+TEST_SRC  := testes/teste_visibilidade.c
 
 # 4. Objetos comuns (Tudo na raiz, exceto o main.c)
 OBJ_COMMON := $(filter-out $(MAIN_FILE:.c=.o), $(SOURCES:.c=.o))
