@@ -104,36 +104,35 @@ int linha_getType(Linha l);
 // ... (Setters) ...
 
 /******************************************************************
-*@brief Obtém a coordenada X1 (início) de uma linha.
+*@brief Define a coordenada X1 (início) de uma linha.
 *@param l A linha.
 *@param x1 Coordenada X1 nova
-*@return A coordenada X1 (double).
 ******************************************************************/
 void linha_setCoordX1(Linha l, double x1);
 
 /******************************************************************
-*@brief Obtém a coordenada X2 (fim) de uma linha.
+*@brief Define a coordenada X2 (fim) de uma linha.
 *@param l A linha.
 *@param x2 Coordenada X2 nova
 ******************************************************************/
 void linha_setCoordX2(Linha l, double x2);
 
 /******************************************************************
-*@brief Obtém a coordenada Y1 (início) de uma linha.
+*@brief Define a coordenada Y1 (início) de uma linha.
 *@param l A linha.
 *@param y1 Coordenada Y1 nova
 ******************************************************************/
 void linha_setCoordY1(Linha l, double y1);
 
 /******************************************************************
-*@brief Obtém a coordenada Y2 (fim) de uma linha.
+*@brief Define a coordenada Y2 (fim) de uma linha.
 *@param l A linha.
 *@param y2 Coordenada Y2 nova
 ******************************************************************/
 void linha_setCoordY2(Linha l, double y2);
 
 /******************************************************************
-*@brief Obtém a cor de uma linha.
+*@brief Define a cor de uma linha.
 *@param l A linha.
 *@param cor Cor nova
 ******************************************************************/

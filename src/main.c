@@ -97,8 +97,9 @@ int main(int argc, char *argv[]) {
     // --- 4. Criando o arquivo .svg com todas as formas iniciais ---
     printf("Gerando arquivo (.svg) inicial: %s\n", path_svg_inicial);
     FILE *arq_svg_inicial = createSVG(path_svg_inicial, formas);
-    stopSVG(arq_svg_inicial);
-
+    if (arq_svg_inicial != NULL) {
+        stopSVG(arq_svg_inicial);
+    }
     // --- 5. Processamento do arquivo .qry ---
     if (path_qry != NULL) {
         char path_qry_completo[PATH_SIZE];

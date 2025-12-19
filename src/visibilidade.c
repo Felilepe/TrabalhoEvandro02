@@ -150,12 +150,20 @@ static void insert_visibility_point(Poligono vis, Arvore *seg_ativos, Ponto bomb
     Ponto p = visibilidade_rayCollision(seg_ativos, bomb, angle, max_radius);
     if (p != NULL) {
         if (validar_ponto(p, bomb)) {
-            Ponto ultimo = poligono_getLastVertice(vis);
-            if (!ultimo || geometria_calcDistPoints(p, bomb)) {
-                poligono_copyPasteVertice(vis, p);
+            if (poligono_getVerticeCount(vis) > 0) {
+                Ponto ultimo = poligono_getLastVertice(vis);
+                
+                // Evita inserir pontos duplicados ou muito próximos
+                double dist = geometria_calcDistPoints(p, ultimo);
+                if (dist < EPSILON) {
+                    ponto_destroy(p);
+                    return;
+                }
             }
+            
+            // Insere o ponto
+            poligono_copyPasteVertice(vis, p);
         }
-        
         ponto_destroy(p);
     }
 }
@@ -247,8 +255,6 @@ Evento *visibilidade_prepSegments(Lista *anteparos, Ponto bomb, int *event_count
             vetor_eventos[k++] = (Evento){id, ang1, dist, INICIO, a};
             vetor_eventos[k++] = (Evento){id, ang2, dist, FIM, a};
         }
-        ponto_destroy(p0);
-        ponto_destroy(p1);
     }
 
     *event_count = k;

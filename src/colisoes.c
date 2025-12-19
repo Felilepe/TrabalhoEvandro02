@@ -11,7 +11,7 @@
 #include "formas.h"
 #include "poligono.h"
 #include "geometria.h"
-#include "anteparo.h" // Incluído caso não estivesse implícito em formas.h
+#include "anteparo.h" 
 
 #define EPSILON 1e-10
 
@@ -99,7 +99,6 @@ static bool sobrepoe_circulo_linha_texto(Circulo c, Linha l)
     Ponto temp_p = ponto_create(px, py);
     double distanciaAoQuadradoDoCirculo = geometria_distSqrd(temp_c, temp_p);
 
-    // [CORREÇÃO CRÍTICA]: Usar ponto_destroy, não linha_destroy
     ponto_destroy(temp_c);
     ponto_destroy(temp_l1);
     ponto_destroy(temp_l2);
@@ -122,7 +121,6 @@ static bool colisaoLinhaLinha(Linha l1, Linha l2)
 
     double D = (x1l1 - x2l1) * (y1l2 - y2l2) - (y1l1 - y2l1) * (x1l2 - x2l2);
 
-    // [MELHORIA]: Usar EPSILON em vez de !D
     if (fabs(D) < EPSILON) return false;
 
     double t = ((x1l1 - x1l2) * (y1l2 - y2l2) - (y1l1 - y1l2) * (x1l2 - x2l2)) / D;
@@ -295,7 +293,6 @@ static bool sobrepoe_anteparo_linha(Anteparo l1, Linha l2) {
 
 static bool colisao_antePoly(Anteparo pp, Poligono p) 
 {
-    // [CORREÇÃO CRÍTICA]: Evitar Memory Leak (recuperar, testar, destruir)
     Ponto p1 = anteparo_getP1(pp);
     if (poligono_isInside(p, p1)) {
         return true;
@@ -380,7 +377,6 @@ bool checarColisao(forma f, Poligono p) {
         case TIPO_A: return colisao_antePoly((Anteparo)f, p);
         default:
             printf("Erro: tipo %d desconhecido em checarColisao.\n", type);
-            // Opcional: retornar false em vez de exit, dependendo da robustez desejada
             return false;
     }
 }

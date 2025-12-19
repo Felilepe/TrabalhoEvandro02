@@ -96,7 +96,6 @@ void svg_insertPoligonoVis(FILE *file_name, Poligono p)
 	for (int i = 0; i < n; i++) {
 		Ponto v = poligono_getVertice(p, i);
 		fprintf(file_name, "%.4lf,%.4lf ", ponto_getCoordX(v), ponto_getCoordY(v));
-		ponto_destroy(v);
 	}
 
 	fprintf(file_name, "\" fill=\"#FF0000\" fill-opacity=\"0.2\" stroke=\"#FF0000\" stroke-width=\"2\" />\n");
