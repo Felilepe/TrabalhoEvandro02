@@ -1,228 +1,357 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <float.h>
-#include <math.h>
 #include "poligono.h"
-#include "lista.h"
 #include "linha.h"
+#include <float.h>
 
-typedef struct 
+#define EPSILON 1e-10
+#define SEGMENT_ID_START 9000
+
+typedef struct stPoligono
 {
-    double x, y;
-    int index;
-} Vertice;
+    Lista *vertices;
+    double xMin, xMax, yMin, yMax;
+    bool valid_bbox;
 
-typedef struct 
+}poligono;
+
+
+
+Poligono poligono_create()
 {
-    Lista* vertices;    
-    double minX, minY;  
-    double maxX, maxY;
-    bool boundingBoxValid;
-} poligono;
-
-
-
-Poligono poligono_create() 
-{
-    poligono* p = (poligono*) malloc(sizeof(poligono));
-    if(p == NULL) {
-        fprintf(stderr, "Erro ao alocar memória para o polígono.\n");
-        exit(EXIT_FAILURE);
+    poligono *p = malloc(sizeof(poligono));
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_create.\n");
+        exit(1);
     }
-    p->vertices = lista_create();
+
+    p -> vertices = lista_create();
+    if(p -> vertices == NULL){
+        printf("Erro: Lista nula em poligono_create\n");
+        exit(1);
+    }
     
-    p->minX = DBL_MAX;
-    p->maxX = -DBL_MAX;
-    p->minY = DBL_MAX;
-    p->maxY = -DBL_MAX;
-    
-    return (Poligono) p;
+    p -> valid_bbox = false;
+
+    return p;
 }
 
+static void atualizar_limites_callback(void* item, void* aux) //Função auxiliar para poligono_calcBBox
+{ 
+    Ponto pt = (Ponto)item;
+    poligono* p = (poligono*)aux; // Recuperamos o polígono passado como contexto
 
-void poligono_insertPoint(Poligono p, double xp, double yp) 
-{
-    poligono* poly = (poligono*) p;
-    
-    Vertice* v = (Vertice*) malloc(sizeof(Vertice));
-    v->x = xp;
-    v->y = yp;
-    
-    
-    lista_insere_inicio(poly->vertices, v); 
-    v -> index = lista_getSize(poly->vertices);
+    double x = ponto_getCoordX(pt);
+    double y = ponto_getCoordY(pt);
 
-    if (xp < poly->minX) poly->minX = xp;
-    if (xp > poly->maxX) poly->maxX = xp;
-    if (yp < poly->minY) poly->minY = yp;
-    if (yp > poly->maxY) poly->maxY = yp;
+    // Lógica padrão de Min/Max
+    if (x < p->xMin) p->xMin = x;
+    if (x > p->xMax) p->xMax = x;
+    if (y < p->yMin) p->yMin = y;
+    if (y > p->yMax) p->yMax = y;
 }
 
-//
-static Vertice** listaParaArray(Lista* l, int* tamanho) 
+void poligono_calcBBox(Poligono p) 
 {
-    int n = lista_getSize(l);
-    *tamanho = n;
-    if (n == 0) return NULL;
+    if (p == NULL || poligono_getVerticeCount(p) == 0) return;
 
-    Vertice** array = (Vertice**) malloc(n * sizeof(Vertice*));
-    
+    poligono *poli = (poligono*)p;
 
-    for(int i = 0; i < n; i++) {
-        array[i] = (Vertice*) lista_remove_inicio(l);
-    }
-    
-    for(int i = n-1; i >= 0; i--) {
-        lista_insere_inicio(l, array[i]);
-    }
+    poli->xMin = DBL_MAX;
+    poli->yMin = DBL_MAX;
+    poli->xMax = -DBL_MAX;
+    poli->yMax = -DBL_MAX;
 
-    return array;
+
+    lista_passthrough(poli->vertices, atualizar_limites_callback, poli);
+
+    poli -> valid_bbox = true;
 }
 
-bool poligono_isInside(Poligono p, double xp, double yp) 
+void poligono_insertVertice(Poligono p, Ponto v)
 {
-    poligono* poly = (poligono*) p;
-
-    if (xp < poly->minX || xp > poly->maxX || yp < poly->minY || yp > poly->maxY) {
-        return false;
+    if(p == NULL || v == NULL){
+        printf("Erro: Poligono ou ponto nulo(s) em poligono_insertVertice.\n");
+        exit(1);
     }
 
-    int n = 0;
-    Vertice** v = listaParaArray(poly->vertices, &n);
-    if (v == NULL || n < 3) return false; 
+    poligono *poli = (poligono*)p;
 
-    bool c = false;
-    for (int i = 0, j = n - 1; i < n; j = i++) {
-        if (((v[i]->y > yp) != (v[j]->y > yp)) &&
-            (xp < (v[j]->x - v[i]->x) * (yp - v[i]->y) / (v[j]->y - v[i]->y) + v[i]->x)) {
-            c = !c;
+    lista_insertTail(poli -> vertices, v);
+
+    poli -> valid_bbox = false;     
+}
+
+void poligono_copyPasteVertice(Poligono p, Ponto v)
+{
+    if(p == NULL || v == NULL){
+        printf("Erro: poligono e/ou ponto nulo(s) em poligono_copyPasteVertice.\n");
+        exit(1);
+    }
+
+    poligono *poli = (poligono*)p;
+
+    double x = ponto_getCoordX(v);
+    double y = ponto_getCoordY(v);
+
+        if (lista_getSize(poli -> vertices) > 0) {
+        double dx = x - ponto_getCoordX(lista_getTail(poli -> vertices));
+        double dy = y - ponto_getCoordY(lista_getTail(poli -> vertices));
+        double dist_sq = dx * dx + dy * dy;
+
+        if (dist_sq < EPSILON * EPSILON) {
+            return;
         }
     }
 
-    free(v); 
-    return c;
+    Ponto copy = ponto_clone(v);
+    poligono_insertVertice(p, copy);
 }
 
-
-
-void poligono_calcBoundingBox(Poligono p)
+bool poligono_isEmpty(Poligono p)
 {
-    poligono* poly = (poligono*) p;
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_isEmpty.\n");
+        exit(1);
+    }
 
-    if (poly->boundingBoxValid) return;
+    return (!poligono_getVerticeCount(p));
+}
 
-    int n = 0;
-    Vertice** v = listaParaArray(poly->vertices, &n);
-    if (v == NULL || n == 0) {
-        free(v);
-        poly->minX = poly->minY = poly->maxX = poly->maxY = 0.0;
-        poly->boundingBoxValid = true;
+typedef struct  //1. Struct auxiliar para poligono_isInside
+{
+    double px, py;        // O ponto que estamos testando
+    Ponto anterior;       // O vértice da iteração passada
+    Ponto primeiro;       // O primeiro vértice (para fechar o loop no final)
+    int intersecoes;      // Contador
+} RayCastContext;
+
+static void testar_aresta(Ponto p1, Ponto p2, RayCastContext* ctx) // 2. Função Auxiliar que calcula a interseção de UMA aresta
+{
+    double x1 = ponto_getCoordX(p1);
+    double y1 = ponto_getCoordY(p1);
+    double x2 = ponto_getCoordX(p2);
+    double y2 = ponto_getCoordY(p2);
+
+    if ((y1 > ctx->py) != (y2 > ctx->py)) {
+        double xIntersecao = (x2 - x1) * (ctx->py - y1) / (y2 - y1) + x1;
+        
+        if (ctx->px < xIntersecao) {
+            ctx->intersecoes++;
+        }
+    }
+}
+
+static void ray_cast_callback(void* item, void* aux) //3. Função auxiliar de callback
+{
+    Ponto atual = (Ponto)item;
+    RayCastContext* ctx = (RayCastContext*)aux;
+
+    if (ctx->anterior == NULL) {
+        ctx->primeiro = atual; 
+        ctx->anterior = atual; 
         return;
     }
 
-    poly->minX = poly->maxX = v[0]->x;
-    poly->minY = poly->maxY = v[0]->y;
+    testar_aresta(ctx->anterior, atual, ctx);
 
-    for (int i = 1; i < n; i++) {
-        if (v[i]->x < poly->minX) poly->minX = v[i]->x;
-        if (v[i]->x > poly->maxX) poly->maxX = v[i]->x;
-        if (v[i]->y < poly->minY) poly->minY = v[i]->y;
-        if (v[i]->y > poly->maxY) poly->maxY = v[i]->y;
+    ctx->anterior = atual;
+}
+
+bool poligono_isInside(Poligono p, Ponto pp) //4. Função principal
+
+{
+    if (p == NULL || poligono_getVerticeCount(p) < 3) return false;
+
+    poligono* poli = (poligono*)p;
+    double px = ponto_getCoordX(pp);
+    double py = ponto_getCoordY(pp);
+
+    if (!poli->valid_bbox) {
+        poligono_calcBBox(p);
+    }
+    if (px < poli->xMin || px > poli->xMax || py < poli->yMin || py > poli->yMax) {
+        return false;
     }
 
-    free(v);
-    poly->boundingBoxValid = true;
-}
+    RayCastContext ctx;
+    ctx.px = px;
+    ctx.py = py;
+    ctx.intersecoes = 0;
+    ctx.anterior = NULL;
+    ctx.primeiro = NULL;
 
+    lista_passthrough(poli->vertices, ray_cast_callback, &ctx);
 
-void poligono_getBoundingBox(Poligono p, double *xMin, double *yMin, double *xMax, double *yMax) 
-{
-    poligono* poly = (poligono*) p;
-    *xMin = poly->minX;
-    *yMin = poly->minY;
-    *xMax = poly->maxX;
-    *yMax = poly->maxY;
-}
-
-Lista* poligono_getVertices(Poligono p) 
-{
-    return ((poligono*)p)->vertices;
-}
-
-int poligono_getNumVertices(Poligono p) 
-{
-    poligono* poly = (poligono*) p;
-    return lista_getSize(poly->vertices);
-}
-
-double poligono_getXVertice(Poligono p, int index) 
-{
-    poligono* poly = (poligono*) p;
-    int n = 0;
-    Vertice** v = listaParaArray(poly->vertices, &n);
-    if (index < 0 || index >= n) {
-        free(v);
-        fprintf(stderr, "Índice de vértice inválido.\n");
-        exit(EXIT_FAILURE);
-    }
-    double x = v[index]->x;
-    free(v);
-    return x;
-}
-
-double poligono_getYVertice(Poligono p, int index) 
-{
-    poligono* poly = (poligono*) p;
-    int n = 0;
-    Vertice** v = listaParaArray(poly->vertices, &n);
-    if (index < 0 || index >= n) {
-        free(v);
-        fprintf(stderr, "Índice de vértice inválido.\n");
-        exit(EXIT_FAILURE);
-    }
-    double y = v[index]->y;
-    free(v);
-    return y;
-}
-
-Lista* poligono_getSegmentos(Poligono p) 
-{
-    poligono* poly = (poligono*) p;
-    Lista* listaSegs = lista_create();
-    
-    int n = 0;
-    Vertice** v = listaParaArray(poly->vertices, &n); 
-    
-    if (n < 2) {
-        free(v);
-        return listaSegs; // Retorna vazia
+    if (ctx.anterior != NULL && ctx.primeiro != NULL) {
+        testar_aresta(ctx.anterior, ctx.primeiro, &ctx);
     }
 
-    for (int i = 0; i < n; i++) {
-        int j = (i + 1) % n; 
+    return (ctx.intersecoes % 2 != 0);
+}
 
-        Linha l = linha_create(-1, v[i]->x, v[i]->y, v[j]->x, v[j]->y, "BLACK", false);
-        
-        lista_insere_inicio(listaSegs, l);
-    }
-
-    free(v); 
-    return listaSegs;
+static void wrapper_destroy_ponto(void* item, void* aux) // Essa função serve apenas para casar a assinatura que o lista_passthrough pede em poligono_destroy
+{
+    ponto_destroy((Ponto)item); 
 }
 
 void poligono_destroy(Poligono p) 
 {
-    poligono* poly = (poligono*) p;
-    if (poly == NULL) return;
+    if (p == NULL) return;
 
-    if (poly->vertices != NULL) {
-        while (!lista_isEmpty(poly->vertices)) {
-            void* pt = lista_remove_inicio(poly->vertices); 
-            free(pt); 
-        }
+    poligono *poli = (poligono*)p;
 
-        lista_destroy(poly->vertices);
+
+    lista_passthrough(poli->vertices, wrapper_destroy_ponto, NULL);
+
+
+    lista_destroy(poli->vertices);
+
+    free(poli);
+}
+
+
+int poligono_getVerticeCount(Poligono p) 
+{
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_getVerticeCount.\n");
+        return -1;
+    }
+    return lista_getSize(((poligono*)p) -> vertices);
+}
+
+Ponto poligono_getVertice(Poligono p, int index)
+{
+if(p == NULL){
+    printf("Erro: Poligono nulo em poligono_getVertice.\n");
+    exit(1);
+}
+
+poligono *poli = (poligono*)p;
+
+int size = poligono_getVerticeCount(p);
+
+if(index < 0 || index >= size){
+        printf("Erro: Indice %d invalido. A lista possui indices de 0 a %d.\n", index, size - 1);
+        exit(1);
     }
 
-    free(poly);
+return lista_getItem(poli -> vertices, index);
+}
+
+Ponto poligono_getLastVertice(Poligono p)
+{
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_getLastVertice.\n");
+        exit(1);
+    }
+
+    poligono *poli = (poligono*)p;
+
+    return lista_getTail(poli -> vertices);
+}
+
+Lista *poligono_getVerticeList(Poligono p)
+{
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_getVerticeList.\n");
+        exit(1);
+    }
+
+    return ((poligono*)p) -> vertices;
+}
+
+typedef struct //Struct auxiliar para a função poligono_getSegments
+{ 
+    Lista *listaSegmentos; // Onde vamos guardar os resultados
+    Ponto pontoAnterior;   // O ponto da iteração passada
+    Ponto pontoPrimeiro;   // O primeiro ponto (para fechar o polígono no final)
+    int *id_counter;       // Ponteiro para o contador de IDs
+} ContextoPoligono;
+
+static void gerar_segmento_callback(void *item_atual, void *aux) //Função auxiliar para a função poligono_getSegments
+
+{
+    Ponto pAtual = (Ponto)item_atual;
+    ContextoPoligono *ctx = (ContextoPoligono*)aux;
+
+    // Se é a primeira iteração (pontoAnterior ainda é NULL)
+    if (ctx->pontoAnterior == NULL) {
+        ctx->pontoPrimeiro = pAtual; // Guarda o primeiro para fechar depois
+        ctx->pontoAnterior = pAtual; // Define o atual como anterior para a próxima volta
+        return; // Não cria segmento ainda, só temos um ponto
+    }
+
+    // Cria o segmento entre Anterior -> Atual
+    double x1 = ponto_getCoordX(ctx->pontoAnterior);
+    double y1 = ponto_getCoordY(ctx->pontoAnterior);
+    double x2 = ponto_getCoordX(pAtual);
+    double y2 = ponto_getCoordY(pAtual);
+
+    int id = ++(*ctx->id_counter); // Incrementa o ID
+    
+    // Cria e insere
+    Linha segmento = linha_create(id, x1, y1, x2, y2, "#000000", false);
+    lista_insertTail(ctx->listaSegmentos, segmento);
+
+    // Atualiza o anterior para ser o atual (para a próxima iteração)
+    ctx->pontoAnterior = pAtual;
+}
+
+Lista *poligono_getSegments(Poligono p)
+{
+    if(p == NULL){
+        printf("Erro: Poligono nulo em poligono_getSegments;\n");
+        exit(1);
+    } 
+
+    poligono *poli = (poligono*)p;
+    
+    Lista *segment_list = lista_create();
+    static int segment_id = SEGMENT_ID_START;
+
+    ContextoPoligono ctx;
+    ctx.listaSegmentos = segment_list;
+    ctx.pontoAnterior = NULL;     
+    ctx.pontoPrimeiro = NULL;
+    ctx.id_counter = &segment_id; 
+
+    lista_passthrough(poli->vertices, gerar_segmento_callback, &ctx);
+
+    if (ctx.pontoAnterior != NULL && ctx.pontoPrimeiro != NULL) {
+        double x1 = ponto_getCoordX(ctx.pontoAnterior); 
+        double y1 = ponto_getCoordY(ctx.pontoAnterior);
+        double x2 = ponto_getCoordX(ctx.pontoPrimeiro);
+        double y2 = ponto_getCoordY(ctx.pontoPrimeiro);
+
+        int id = ++segment_id;
+        Linha segmento = linha_create(id, x1, y1, x2, y2, "#000000", false);
+        lista_insertTail(segment_list, segmento);
+    }
+
+    return segment_list;
+}
+
+void poligono_getBBox(Poligono p, double *xMin, double *xMax, double *yMin, double *yMax)
+{
+    if (p == NULL || xMin == NULL || xMax == NULL || yMin == NULL || yMax == NULL) {
+        printf("Erro: Poligono e/ou coordenada(s) nulo(s) em poligono_getBBox.\n");
+        exit(1);
+    }
+
+    poligono* poli = (poligono*)p;
+
+    if(!poligono_getVerticeCount(p)){
+        *yMax = *yMin = *xMax = *xMin = 0.0;
+        return;
+    }
+
+    if(!poli -> valid_bbox){
+        poligono_calcBBox(p);
+    }
+
+    *xMax = poli -> xMax;
+    *xMin = poli -> xMin;
+    *yMax = poli -> yMax;
+    *yMin = poli -> yMin;
 }

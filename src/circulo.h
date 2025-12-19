@@ -17,12 +17,37 @@ typedef void* Circulo;
 Circulo circulo_create(int id, double x, double  y, double r, char *corborda, char *corpreench);
 
 /****************************************************************************************
+* @brief Obtém a área de um círculo.
+* @param c O círculo do qual a área será obtida.
+* @return Retorna o valor da área (um double).
+****************************************************************************************/
+double circulo_calcArea(Circulo c);
+
+/****************************************************************************************
+* @brief Converte um círculo em um anteparo.
+* @param c O círculo a ser convertido/utilizado.
+* @param orientacao Caractere que define a orientação do anteparo.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
+Anteparo circulo_toAnteparo(Circulo c, char orientacao, int *id_next);
+
+/****************************************************************************************
+ * @brief Libera a memória alocada para o círculo.
+* @param c O círculo a ser destruído.
+****************************************************************************************/
+void circulo_destroy(Circulo c);
+
+
+
+// ... (Getters) ...
+
+/****************************************************************************************
 * @brief Obtém a coordenada X do centro de um círculo.
 * @param c O círculo do qual a coordenada será obtida.
 * @return Retorna o valor da coordenada X (um double).
 ****************************************************************************************/
 double circulo_getCoordX(Circulo c);
-
 
 /****************************************************************************************
 * @brief Obtém a coordenada Y do centro de um círculo.
@@ -66,67 +91,44 @@ char* circulo_getCorPreench(Circulo c);
 ****************************************************************************************/
 int circulo_getType(Circulo c);
 
-/****************************************************************************************
-* @brief Obtém a área de um círculo.
-* @param c O círculo do qual a área será obtida.
-* @return Retorna o valor da área (um double).
-****************************************************************************************/
-double circulo_calcArea(Circulo c);
 
 
 // ... (Setters) ...
 
 /****************************************************************************************
-* @brief Define a coordenada X do centro de um círculo.
-* @param c O círculo.
-* @param x A nova coordenada X.
-****************************************************************************************/
+ * @brief Define a coordenada X do centro de um círculo.
+ * @param c O círculo.
+ * @param x A nova coordenada X.
+ ****************************************************************************************/
 void circulo_setCoordX(Circulo c, double x);
 
 /****************************************************************************************
-* @brief Define a coordenada X do centro de um círculo.
-* @param c O círculo.
-* @param x A nova coordenada X.
-****************************************************************************************/
+ * @brief Define a coordenada X do centro de um círculo.
+ * @param c O círculo.
+ * @param x A nova coordenada X.
+ ****************************************************************************************/
 void circulo_setCoordY(Circulo c, double y);
 
 /****************************************************************************************
-* @brief Define a coordenada X do centro de um círculo.
-* @param c O círculo.
-* @param x A nova coordenada X.
-****************************************************************************************/
+ * @brief Define a coordenada X do centro de um círculo.
+ * @param c O círculo.
+ * @param x A nova coordenada X.
+ ****************************************************************************************/
 void circulo_setRaio(Circulo c, double r);
 
 /****************************************************************************************
-* @brief Define a coordenada X do centro de um círculo.
-* @param c O círculo.
-* @param x A nova coordenada X.
-****************************************************************************************/
+ * @brief Define a coordenada X do centro de um círculo.
+ * @param c O círculo.
+ * @param x A nova coordenada X.
+ ****************************************************************************************/
 void circulo_setCorBorda(Circulo c, char *corborda);
 
 /****************************************************************************************
-* @brief Define a coordenada X do centro de um círculo.
-* @param c O círculo.
-* @param x A nova coordenada X.
-****************************************************************************************/
+ * @brief Define a coordenada X do centro de um círculo.
+ * @param c O círculo.
+ * @param x A nova coordenada X.
+ ****************************************************************************************/
 void circulo_setCorPreench(Circulo c, char *corpreench);
 
-
-/****************************************************************************************
-* @brief Libera a memória alocada para o círculo.
-* @param c O círculo a ser destruído.
-****************************************************************************************/
-void circulo_destroy(Circulo c);
-
-
-
-/****************************************************************************************
-* @brief Converte um círculo em um anteparo.
-* @param c O círculo a ser convertido.
-* @param orientacao A orientação do anteparo ('h' para horizontal, 'h' para vertical).
-* @param ant_id Ponteiro para o ID do anteparo.
-* @return Retorna o anteparo criado.
-****************************************************************************************/
-Anteparo circulo_anteparo(Circulo c, char orientacao, int ant_id);
 
 #endif

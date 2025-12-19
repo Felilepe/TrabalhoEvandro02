@@ -7,11 +7,10 @@
 #include "retangulo.h"
 #include "texto.h"
 #include "formas.h"
+#include "anteparo.h"
 
-#define TIPO_C 1
-#define TIPO_R 2
-#define TIPO_L 3
-#define TIPO_T 4
+#define SEGMENT_ID_START 9000
+#define FORMA_CLONE_ID_START 10000
 
 typedef struct forma_g
 {
@@ -32,7 +31,8 @@ void forma_destroy(forma f)
         case(TIPO_R): retangulo_destroy((Retangulo)f); break;
         case(TIPO_L): linha_destroy((Linha)f); break;
         case(TIPO_T): texto_destroy((Texto)f); break;
-        default: printf("Erro: tipo de forma invalido."); exit(1); break;
+        case(TIPO_A): anteparo_destroy((Anteparo)f); break;
+        default: printf("Erro: tipo de forma invalido em forma_destroy."); exit(1); break;
     }
 }
 
@@ -53,6 +53,7 @@ int forma_getType(forma f)
         case(TIPO_R):type = retangulo_getType((Retangulo)f); break;
         case(TIPO_L):type = linha_getType((Linha)f); break;
         case(TIPO_T):type = texto_getType((Texto)f); break;
+        case(TIPO_A):type = anteparo_getType((Anteparo)f); break; 
         default: printf("Erro: tipo de forma invalido no forma_getType. Tipo %d", forma_generica -> type); exit(1); break;
     }
     return type;
@@ -69,6 +70,7 @@ double forma_calcArea(forma f)
         case(TIPO_R): area = retangulo_calcArea((Retangulo)f); break;
         case(TIPO_L): area = linha_calcArea((Linha)f); break; 
         case(TIPO_T): area = texto_calcArea((Texto)f); break;
+        case(TIPO_A):
         default: printf("Erro: tipo de forma invalido no forma_calcArea."); exit(1); break;
     }
     return area;
@@ -95,7 +97,7 @@ void forma_trocarCores(forma f)
     free(buffer);
 }
 
-void forma_trocaCoresEntreFormas(forma f1, forma f2)
+void forma_trocarCoresEntreFormas(forma f1, forma f2)
 {
     if (f1 == NULL || f2 == NULL) return;
     char* corP1 = forma_getCorPreench(f1);
@@ -144,6 +146,10 @@ void forma_exportarDados(forma f, FILE *file_name, char* report_QRY)
             fprintf(file_name, " Família da fonte: %s\n Peso da fonte: %s\n Tamanho da fonte: %s\n\n",
             texto_getFamily(t), texto_getWeight(t), texto_getSize(t)); break;
 
+        case(TIPO_A): fprintf(file_name, "%s\n Anteparo\n ID: %i\n Ponto 1 em: (%.2lf, %.2lf)\n Ponto 2 em: (%.2lf, %.2lf)\n Cor: %s\n",
+            report_safe, anteparo_getID((Anteparo)f), anteparo_getCoordX1((Anteparo)f), anteparo_getCoordY1((Anteparo)f),
+            anteparo_getCoordX2((Anteparo)f), anteparo_getCoordY2((Anteparo)f), anteparo_getCor((Anteparo)f)); break;
+
         default: fprintf(file_name, "Tipo de forma desconhecido no forma_exportarDados."); break;
     }
 }
@@ -151,7 +157,7 @@ void forma_exportarDados(forma f, FILE *file_name, char* report_QRY)
 forma forma_clonar(forma f) {
     if (f == NULL) return NULL;
 
-    static int max_id = 10000;
+    static int max_id = FORMA_CLONE_ID_START;
     int novo_id = ++max_id;
     int tipo = forma_getType(f); 
     
@@ -209,8 +215,19 @@ forma forma_clonar(forma f) {
             }
             break;
         }
+        case TIPO_A: {
+            novo_clone = (forma)anteparo_create(novo_id,
+                anteparo_getCoordX1((Anteparo)f),
+                anteparo_getCoordY1((Anteparo)f),
+                anteparo_getCoordX2((Anteparo)f),
+                anteparo_getCoordY2((Anteparo)f),
+                anteparo_getCor((Anteparo)f)
+            );
+            break;
+        }
         default:
-            return NULL;
+            printf("Erro: tipo de forma invalido no forma_clonar.\n");
+            exit(1);
     }
 
     
@@ -229,6 +246,7 @@ int forma_getID(forma f)
         case(TIPO_R): ID = retangulo_getID((Retangulo)f); break;
         case(TIPO_L): ID = linha_getID((Linha)f); break;
         case(TIPO_T): ID = texto_getID((Texto)f); break;
+        case(TIPO_A): ID = anteparo_getID((Anteparo)f); break;
         default: printf("Erro: tipo de forma invalido no forma_getID."); exit(1); break;
     }
     return  ID;
@@ -258,6 +276,7 @@ double forma_getCoordX(forma f)
             break;
         }
         case(TIPO_T): coordx = texto_getCoordX((Texto)f); break;
+        case(TIPO_A): coordx = (anteparo_getCoordX1((Anteparo)f) < anteparo_getCoordX2((Anteparo)f)) ? anteparo_getCoordX1((Anteparo)f) : anteparo_getCoordX2((Anteparo)f); break;
         default: printf("Erro: tipo de forma invalido no forma_getCoordX."); exit(1); break;
     }
     return coordx;
@@ -292,6 +311,7 @@ double forma_getCoordY(forma f)
             break;
         }
         case(TIPO_T): coordy = texto_getCoordY((Texto)f); break;
+        case(TIPO_A): coordy = (anteparo_getCoordY1((Anteparo)f) < anteparo_getCoordY2((Anteparo)f)) ? anteparo_getCoordY1((Anteparo)f) : anteparo_getCoordY2((Anteparo)f); break;  
         default: printf("Erro: tipo de forma invalido no forma_getCoordY."); exit(1); break;
     }
     return coordy;
@@ -307,6 +327,7 @@ char* forma_getCorBorda(forma f)
         case(TIPO_R): corb =  retangulo_getCorBorda((Retangulo)f); break;
         case(TIPO_L): corb =  linha_getCor((Linha)f); break; 
         case(TIPO_T): corb = texto_getCorBorda((Texto)f); break;
+        case(TIPO_A): corb = anteparo_getCor((Anteparo)f); break;
         default: printf("Erro: tipo de forma invalido no forma_getCorBorda."); exit(1); break;
     }
     return corb;
@@ -321,6 +342,7 @@ char* forma_getCorPreench(forma f)
         case(TIPO_C): corp = circulo_getCorPreench((Circulo)f); break;
         case(TIPO_R): corp = retangulo_getCorPreench((Retangulo)f); break;
         case(TIPO_L): printf("Erro: tipo de forma invalido. Para linhas, utilize 'forma_getCorBorda'"); break; 
+        case(TIPO_A): printf("Erro: tipo de forma invalido. Para anteparos, utilize 'forma_getCorBorda'"); break;
         case(TIPO_T): corp = texto_getCorPreench((Texto)f); break;
         default: printf("Erro: tipo de forma invalido no forma_getCorPreench."); exit(1); break;
     }
@@ -403,6 +425,37 @@ void forma_setCoordX(forma f, double x)
             }
             break;
         }
+        case TIPO_A:
+            {
+                double x1_atual = anteparo_getCoordX1((Anteparo)f);
+                double y1_atual = anteparo_getCoordY1((Anteparo)f);
+                double x2_atual = anteparo_getCoordX2((Anteparo)f);
+                double y2_atual = anteparo_getCoordY2((Anteparo)f);
+
+                double delta_x;
+                bool p1_era_ancora;
+
+                if (x1_atual < x2_atual) {
+                    p1_era_ancora = true;
+                } else if (x1_atual > x2_atual) {
+                    p1_era_ancora = false;
+                } else {
+                    p1_era_ancora = (y1_atual <= y2_atual);
+                }
+
+                if (p1_era_ancora) {
+                    delta_x = x2_atual - x1_atual;
+
+                    anteparo_setCoordX1((Anteparo)f, x);           
+                    anteparo_setCoordX2((Anteparo)f, x + delta_x);
+                } else {
+                    delta_x = x1_atual - x2_atual;
+
+                    anteparo_setCoordX2((Anteparo)f, x);           
+                    anteparo_setCoordX1((Anteparo)f, x + delta_x); 
+                }
+                break;
+            }
         default: printf("Erro: tipo de forma invalido em forma_setCoordX."); exit(1); break;
     }
 }
@@ -446,6 +499,37 @@ void forma_setCoordY(forma f, double y)
             }
             break;
         }
+        case TIPO_A:
+            {
+                double x1_atual = anteparo_getCoordX1((Anteparo)f);
+                double y1_atual = anteparo_getCoordY1((Anteparo)f);
+                double x2_atual = anteparo_getCoordX2((Anteparo)f);
+                double y2_atual = anteparo_getCoordY2((Anteparo)f);
+
+                double delta_y;
+                bool p1_era_ancora;
+
+                if (x1_atual < x2_atual) {
+                    p1_era_ancora = true;
+                } else if (x1_atual > x2_atual) {
+                    p1_era_ancora = false;
+                } else {
+                    p1_era_ancora = (y1_atual <= y2_atual);
+                }
+
+                if (p1_era_ancora) {
+                    delta_y = y2_atual - y1_atual;
+
+                    anteparo_setCoordY1((Anteparo)f, y);          
+                    anteparo_setCoordY2((Anteparo)f, y + delta_y); 
+                } else {
+                    delta_y = y1_atual - y2_atual;
+
+                    anteparo_setCoordY2((Anteparo)f, y);        
+                    anteparo_setCoordY1((Anteparo)f, y + delta_y); 
+                }
+                break;
+            }
         default: printf("Erro: tipo de forma invalido em forma_setCoordY."); exit(1); break;
     }
 }
@@ -459,6 +543,7 @@ void forma_setCorBorda(forma f, char* corb)
         case(TIPO_R): retangulo_setCorBorda((Retangulo)f, corb); break;
         case(TIPO_L): linha_setCor((Linha)f, corb); break; 
         case(TIPO_T): texto_setCorBorda((Texto)f, corb); break;
+        case(TIPO_A): anteparo_setCor((Anteparo)f, corb); break;
         default: printf("Erro: tipo de forma invalido em forma_setCorBorda."); exit(1); break;
     }
 }
@@ -472,21 +557,61 @@ void forma_setCorPreench(forma f, char* corp)
         case(TIPO_R): retangulo_setCorPreench((Retangulo)f, corp); break;
         case(TIPO_L): printf("Erro: tipo de forma invalido. Para linhas, utilize 'forma_setCorBorda'"); break;         
         case(TIPO_T): texto_setCorPreench((Texto)f, corp); break;
+        case(TIPO_A): printf("Erro: tipo de forma invalido. Para anteparos, utilize 'forma_setCorBorda'"); break;
         default: printf("Erro: tipo de forma invalido em forma_setCorPreench."); exit(1); break;
     }
 }
 
 
 
-Lista *forma_anteparo(forma f, int ant_id, char orientacao)
+Lista *forma_toAnteparo(forma f, char orientacao)
 {
-    FormaG* forma_generica = (FormaG*)f;
+    int type = forma_getType(f);
+    
+    // Gerenciamento de ID
+    static int id_anteparo = 10000;
+    int id_novo = ++id_anteparo;
 
-    switch(forma_generica -> type){
-        case(TIPO_C): return circulo_anteparo((Circulo)f, orientacao, ant_id); break;
-        case(TIPO_R): return retangulo_anteparo((Retangulo)f, ant_id); break;
-        case(TIPO_L): return linha_anteparo((Linha)f, ant_id); break; 
-        case(TIPO_T): return texto_anteparo((Texto)f, ant_id); break;
-        default: printf("Erro: tipo de forma invalido no forma_anteparo."); exit(1); break;
+    Lista *lista_resultado = NULL;
+
+    switch(type){
+        // --- CASO 1: A função retorna um ÚNICO ITEM (void*) ---
+        case TIPO_C: {
+            lista_resultado = lista_create();
+            // A função retorna um ponteiro para o Anteparo, guardamos em 'item'
+            void *item_anteparo = circulo_toAnteparo((Circulo)f, orientacao, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
+            break;
+        } 
+        
+        case TIPO_L: {
+            lista_resultado = lista_create();
+            // Ajeitei para linha_toAnteparo (antes estava chamando texto_toAnteparo errado)
+            void *item_anteparo = linha_toAnteparo((Linha)f, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
+            break;
+        }
+
+        case TIPO_T: {
+            lista_resultado = lista_create();
+            void *item_anteparo = texto_toAnteparo((Texto)f, &id_novo);
+            lista_insertTail(lista_resultado, item_anteparo);
+            break;
+        }
+
+        // --- CASO 2: A função já retorna uma LISTA ---
+        case TIPO_R: {
+            // Retângulo gera 4 linhas, então ele já devolve a lista pronta
+            lista_resultado = retangulo_toAnteparo((Retangulo)f, &id_novo);
+            break;
+        }
+
+        // --- CASO DE ERRO / OUTROS ---
+        default: 
+            // Para segurança, retornamos lista vazia se for tipo desconhecido ou Anteparo
+            lista_resultado = lista_create();
+            break;
     }
+
+    return lista_resultado;
 }

@@ -4,13 +4,14 @@
 
 #include "formas.h"
 #include "lista.h"
-#include "lerGEO.h"
-#include "lerQRY.h"
+#include "lerGeo.h"
+#include "lerQry.h"
 #include "svg.h"
 
 #define PATH_SIZE 520
 
-static void monta_caminho(char* path_completo, const char* base_dir, const char* nome_arquivo) {
+static void monta_caminho(char* path_completo, const char* base_dir, const char* nome_arquivo) 
+{
     if (base_dir != NULL && strlen(base_dir) > 0) {
         sprintf(path_completo, "%s/%s", base_dir, nome_arquivo);
     } else {
@@ -18,7 +19,8 @@ static void monta_caminho(char* path_completo, const char* base_dir, const char*
     }
 }
 
-static void extrair_nome_base(const char *caminho, char *nome_base) {
+static void extrair_nome_base(const char *caminho, char *nome_base) 
+{
     const char *ultimo_slash = strrchr(caminho, '/');
 
     strcpy(nome_base, ultimo_slash ? ultimo_slash + 1 : caminho);
@@ -29,6 +31,10 @@ static void extrair_nome_base(const char *caminho, char *nome_base) {
     }
 }
 
+static void helper_destruir_forma(void *dado, void *ignore) //"Unused parameter" é um parâmetro de                                                       
+{                                                       //compatibilidade com lista_passthrough
+    forma_destroy(dado); 
+}
 
 int main(int argc, char *argv[]) {
 
@@ -81,7 +87,7 @@ int main(int argc, char *argv[]) {
 
     printf("Lendo arquivo (.geo): %s\n", path_geo_completo);
 
-    lista *formas = parser_geo(path_geo_completo);
+    Lista *formas = processaGeo(path_geo_completo);
 
     if (formas == NULL) {
         fprintf(stderr, "ERRO: Falha crítica ao processar o arquivo .geo (%s)\n", path_geo_completo);
@@ -90,9 +96,10 @@ int main(int argc, char *argv[]) {
 
     // --- 4. Criando o arquivo .svg com todas as formas iniciais ---
     printf("Gerando arquivo (.svg) inicial: %s\n", path_svg_inicial);
-    FILE *arq_svg_inicial = gerar_arquivo_svg(path_svg_inicial, formas);
-    fecha_svg(arq_svg_inicial);
-
+    FILE *arq_svg_inicial = createSVG(path_svg_inicial, formas);
+    if (arq_svg_inicial != NULL) {
+        stopSVG(arq_svg_inicial);
+    }
     // --- 5. Processamento do arquivo .qry ---
     if (path_qry != NULL) {
         char path_qry_completo[PATH_SIZE];
@@ -118,29 +125,31 @@ int main(int argc, char *argv[]) {
 
         printf("Threshold insertion sort: %d\n\n", threshold_i);
 
-        FILE *svg_final = inicializa_svg(path_svg_final);
-        lista *anteparos = init_lista();
-        parser_qry(formas, anteparos, path_qry_completo, path_txt_final, threshold_i, tipo_ord, path_saida, nome_base_final, svg_final);
+        FILE *svg_final = startSVG(path_svg_final);
+        Lista *anteparos = lista_create();
+        lerQry(formas, anteparos, path_qry_completo, path_txt_final, threshold_i, tipo_ord, path_saida, nome_base_final, svg_final);
 
         if (svg_final) {
-            desenhar_formas_no_svg(svg_final, formas);
+            lista_passthrough(formas, draw, svg_final);
         }
 
         if (anteparos) {
-            desenhar_formas_no_svg(svg_final, anteparos);
+            lista_passthrough(anteparos, draw, svg_final);        
         }
 
-        fecha_svg(svg_final);
+        stopSVG(svg_final);
 
         printf("Gerando arquivo (.svg) final: %s\n", path_svg_final);
         printf("Arquivo (.txt) de log gerado: %s\n", path_txt_final);
 
-        free_lista(anteparos, (void(*)(void*))destrutor_forma);
+        lista_passthrough(anteparos, helper_destruir_forma, NULL);
+        lista_destroy(anteparos);
     }
 
     // --- 6. Liberando a memória que faltava do programa ---
     printf("\nLimpando memória...\n");
-    free_lista(formas, (void(*)(void*))destrutor_forma);
+    lista_passthrough(formas, helper_destruir_forma, NULL);
+    lista_destroy(formas);
 
     printf("Execução concluída com sucesso!\n");
     return 0;

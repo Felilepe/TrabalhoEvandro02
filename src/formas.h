@@ -1,5 +1,6 @@
 #ifndef FORMAS_H
 #define FORMAS_H
+#include "lista.h"
 
 #define TIPO_C 1
 #define TIPO_R 2
@@ -8,7 +9,6 @@
 #define TIPO_A 5
 
 #include <stdio.h>
-#include "lista.h"
 
 typedef void* forma;
 
@@ -52,6 +52,15 @@ forma forma_clonar(forma f);
 *@param report_QRY O nome do arquivo QRY (?).
 ******************************************************************/
 void forma_exportarDados(forma f, FILE *file_name, char* report_QRY);
+
+/******************************************************************
+*@brief Converte uma forma genérica em uma lista de anteparos.
+*@param f A forma genérica a ser convertida.
+*@param orientacao Caractere definindo a orientação (se aplicável).
+*@return Uma lista contendo os anteparos gerados.
+******************************************************************/
+Lista *forma_toAnteparo(forma f, char orientacao);
+
 
 // --- Getters Polimórficos ---
 
@@ -133,16 +142,6 @@ void forma_setCorBorda(forma f, char* corb);
 *@param corp A nova Cor de Preenchimento.
 ******************************************************************/
 void forma_setCorPreench(forma f, char* corp);
-
-
-/******************************************************************
-*@brief Chama a função relevante para conversão em anteparo.
-*@param f A forma genérica.
-*@param ant_id O ID do anteparo.
-*@param orientacao A orientação do anteparo.
-*@return O(s) anteparo(s) criado(s).
-******************************************************************/
-Lista *forma_anteparo(forma f, int ant_id, char orientacao);
 
 
 #endif

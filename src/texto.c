@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "texto.h"
-#include "linha.h"
 
 #define TIPO_T 4
 
@@ -24,19 +23,15 @@ static void inicializarDefault()
 {
     default_fFamily = (char*)malloc(strlen("serif") + 1);
     strcpy(default_fFamily, "serif");
-
+    
     default_fWeight = (char*)malloc(strlen("normal") + 1);
     strcpy(default_fWeight,"n");
-
+    
     default_fSize = (char*)malloc(strlen("12") + 1);
     strcpy(default_fSize, "12");
 }
 
 
-static double calcComp (char *txto) //Calcula o comprimento da linha
-{
-    return 10 * strlen(txto);
-}
 
 static double conversaoCoordTxtoLinhaX1(Texto t) // Converte a coordenada de x de um texto para uma coordenada x1 de uma linha
 {
@@ -83,6 +78,13 @@ static double conversaoCoordTxtoLinhaX2(Texto t) // Converte a coordenada de x d
     return x2;
 }
 
+
+
+static double calcComp (char *txto) //Calcula o comprimento da linha
+{
+    return 10 * strlen(txto);
+}
+    
 
 
 Texto texto_create(int id, double x, double y, char *corborda, char *corpreench, char a, char* txto)
@@ -189,21 +191,35 @@ double texto_calcArea(Texto t) {return 2 * calcComp(((texto*)t) -> txto);}
 
 void texto_setNewStyle(char *fFamily, char *fWeight, char* fSize)
 {
-    if(default_fFamily == NULL){
-        inicializarDefault();
+    if (default_fFamily != NULL) {
+        free(default_fFamily);
     }
-
-    free(default_fFamily);
-    free(default_fWeight);
-    free(default_fSize);
-
+    if (default_fWeight != NULL) {
+        free(default_fWeight);
+    }
+    if (default_fSize != NULL) {
+        free(default_fSize);
+    }
+    
     default_fFamily = (char*)malloc(strlen(fFamily) + 1);
+    if (default_fFamily == NULL) {
+        printf("Erro ao alocar memoria para fFamily em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fFamily, fFamily);
 
     default_fWeight = (char*)malloc(strlen(fWeight) + 1);
+    if (default_fWeight == NULL) {
+        printf("Erro ao alocar memoria para fWeight em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fWeight, fWeight);
 
     default_fSize = (char*)malloc(strlen(fSize) + 1);
+    if (default_fSize == NULL) {
+        printf("Erro ao alocar memoria para fSize em texto_setNewStyle\n");
+        exit(1);
+    }
     strcpy(default_fSize, fSize);
 }
 
@@ -271,8 +287,7 @@ void texto_destroy(Texto t){
 
 
 
-
-Linha conversaoTxtoLinha(Texto t)
+Linha conversaoTxtoLinha(Texto t) 
 {
     double x1, x2;
     double y1, y2;
@@ -287,15 +302,11 @@ Linha conversaoTxtoLinha(Texto t)
 
 
 
-Anteparo texto_anteparo(Texto t, int ant_id)
+Anteparo texto_toAnteparo(Texto t, int *id_next)
 {
-    texto *txto = (texto*)t;
-    if(txto == NULL || ant_id == NULL){
-        printf("Erro ao converter texto em anteparo: ponteiro nulo recebido.\n");
-        exit(1);
-    }
-    
-    Linha l = conversaoTxtoLinha(t);
+    Linha txto_convertido = conversaoTxtoLinha(t);
+    Anteparo resultado = linha_toAnteparo(txto_convertido, id_next);
+    linha_destroy(txto_convertido);
+    return resultado;
 
-    return linha_anteparo(l, ant_id);
 }

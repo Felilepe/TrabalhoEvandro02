@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "retangulo.h"
-#include "lista.h"
 
 #define TIPO_R 2
 
@@ -107,24 +106,30 @@ void retangulo_destroy(Retangulo r)
 
 
 
-Lista *retangulo_anteparo(Retangulo r, int ant_id)
+Lista *retangulo_toAnteparo(Retangulo r, int *id_next)
 {
-    retangulo *rect = (retangulo*) r;
-    Lista *anteparos = init_lista();
+    Lista *anteparos = lista_create();
 
-    Anteparo *lados[4] = {
-        init_anteparo(++(ant_id), rect -> x, rect -> y, rect -> x + rect -> w, rect -> y, rect -> corborda),
-        init_anteparo(++(ant_id), rect -> x,  0, rect -> x, rect -> y + rect -> h, rect -> corborda),
-        init_anteparo(++(ant_id), rect -> x + rect -> w, rect -> y, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda),
-        init_anteparo(++(ant_id), rect -> x, rect -> y + rect -> h, rect -> x + rect -> w, rect -> y + rect -> h, rect -> corborda)
-    };
-
-    for (int i = 0; i < 4; i++) {
-        lista_add(anteparos, lados[i]);
+    if(anteparos == NULL){
+        printf("Erro: lista_create retornou pointer nulo em retangulo_toAnteparo.");
+        exit(1);
     }
+
+    double x = retangulo_getCoordX(r);
+    double y = retangulo_getCoordY(r);
+    double h = retangulo_getHeight(r);
+    double w = retangulo_getWidth(r);
+    char *cor = retangulo_getCorBorda(r);
+
+    Anteparo topo = anteparo_create(++(*id_next), x,(y + h), (x + w), (y + h), cor);
+    Anteparo esq = anteparo_create(++(*id_next), x, y, x, (y + h), cor);
+    Anteparo dir = anteparo_create(++(*id_next), (x + w), y, (x + w), (y + h), cor);
+    Anteparo chao = anteparo_create(++(*id_next), x, y, (x + w), y, cor);
+
+    lista_insertTail(anteparos, topo);      
+    lista_insertTail(anteparos, esq);
+    lista_insertTail(anteparos, dir);
+    lista_insertTail(anteparos, chao);
 
     return anteparos;
 }
-
-
-

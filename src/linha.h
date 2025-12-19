@@ -6,18 +6,42 @@
 typedef void* Linha;
 
 /******************************************************************
-*@brief Cria e aloca a memória para uma nova linha.
-*@param id Identificador único para a linha.
-*@param x1 Coordenada X do ponto inicial.
-*@param y1 Coordenada Y do ponto inicial.
-*@param x2 Coordenada X do ponto final.
-*@param y2 Coordenada Y do ponto final.
-*@param cor String que representa a cor da linha.
-*@param isDotted Flag booleano se a linha é pontilhada.
-*@return Retorna um ponteiro do tipo Linha para a linha recém-criada.
-******************************************************************/
+ *@brief Cria e aloca a memória para uma nova linha.
+ *@param id Identificador único para a linha.
+ *@param x1 Coordenada X do ponto inicial.
+ *@param y1 Coordenada Y do ponto inicial.
+ *@param x2 Coordenada X do ponto final.
+ *@param y2 Coordenada Y do ponto final.
+ *@param cor String que representa a cor da linha.
+ *@param isDotted Flag booleano se a linha é pontilhada.
+ *@return Retorna um ponteiro do tipo Linha para a linha recém-criada.
+ ******************************************************************/
 Linha linha_create(int id, double x1, double y1, double x2, double y2, char* cor, bool isDotted);
 
+/******************************************************************
+*@brief Libera a memória alocada para a linha.
+*@param l A linha a ser destruída.
+******************************************************************/
+void linha_destroy(Linha l);
+
+/******************************************************************
+*@brief Calcula a "área" (comprimento) de uma linha.
+*@param l A linha.
+*@return O comprimento (double) da linha.
+******************************************************************/
+double linha_calcArea(Linha l);
+
+/****************************************************************************************
+* @brief Converte uma linha em um anteparo.
+* @param l A linnha a ser convertida/utilizada.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
+Anteparo linha_toAnteparo(Linha l, int *id_next);
+
+
+
+// ... (Getters) ...
 
 /******************************************************************
 *@brief Obtém o ID de uma linha.
@@ -76,66 +100,44 @@ bool linha_getIsDotted(Linha l);
 int linha_getType(Linha l);
 
 
-/******************************************************************
-*@brief Calcula a "área" (comprimento) de uma linha.
-*@param l A linha.
-*@return O comprimento (double) da linha.
-******************************************************************/
-double linha_calcArea(Linha l);
 
 // ... (Setters) ...
 
 /******************************************************************
-*@brief Obtém a coordenada X1 (início) de uma linha.
+*@brief Define a coordenada X1 (início) de uma linha.
 *@param l A linha.
 *@param x1 Coordenada X1 nova
-*@return A coordenada X1 (double).
 ******************************************************************/
 void linha_setCoordX1(Linha l, double x1);
 
 /******************************************************************
-*@brief Obtém a coordenada X2 (fim) de uma linha.
+*@brief Define a coordenada X2 (fim) de uma linha.
 *@param l A linha.
 *@param x2 Coordenada X2 nova
 ******************************************************************/
 void linha_setCoordX2(Linha l, double x2);
 
 /******************************************************************
-*@brief Obtém a coordenada Y1 (início) de uma linha.
+*@brief Define a coordenada Y1 (início) de uma linha.
 *@param l A linha.
 *@param y1 Coordenada Y1 nova
 ******************************************************************/
 void linha_setCoordY1(Linha l, double y1);
 
 /******************************************************************
-*@brief Obtém a coordenada Y2 (fim) de uma linha.
+*@brief Define a coordenada Y2 (fim) de uma linha.
 *@param l A linha.
 *@param y2 Coordenada Y2 nova
 ******************************************************************/
 void linha_setCoordY2(Linha l, double y2);
 
 /******************************************************************
-*@brief Obtém a cor de uma linha.
+*@brief Define a cor de uma linha.
 *@param l A linha.
 *@param cor Cor nova
 ******************************************************************/
 void linha_setCor(Linha l, char *cor);
 
-
-/******************************************************************
-*@brief Libera a memória alocada para a linha.
-*@param l A linha a ser destruída.
-******************************************************************/
-void linha_destroy(Linha l);
-
-
-/****************************************************************************************
-* @brief Converte uma linha em um anteparo.
-* @param l A linha a ser convertido.
-* @param ant_id Ponteiro para o ID do anteparo.
-* @return Retorna o anteparo criado.
-****************************************************************************************/
-Anteparo linha_anteparo(Linha l, int ant_id);
 
 
 #endif

@@ -18,6 +18,35 @@ typedef void* Texto;
 ******************************************************************/
 Texto texto_create(int id, double x, double y, char *corborda, char *corpreench, char a, char* txto);
 
+/****************************************************************************************
+* @brief Converte uma texto em uma linha.
+* @param t O texto a ser convertido.
+* @return Retorna um objeto do tipo Linha.
+****************************************************************************************/
+Linha conversaoTxtoLinha(Texto t);
+
+/******************************************************************
+*@brief Libera a memória alocada para o objeto de texto.
+*@param t O texto a ser destruído.
+******************************************************************/
+void texto_destroy(Texto t);
+
+/******************************************************************
+*@brief Calcula a "área" (comprimento * altura base) de um texto.
+*@param t O texto.
+*@return A área (double) do texto.
+******************************************************************/
+double texto_calcArea(Texto t);
+
+/****************************************************************************************
+* @brief Converte uma linha em um anteparo.
+* @param t O texto a ser convertido/utilizado.
+* @param id_next Ponteiro para o próximo ID disponível (para geração de novos elementos).
+* @return Retorna um objeto do tipo Anteparo.
+****************************************************************************************/
+Anteparo texto_toAnteparo(Texto t, int *id_next);
+
+
 // --- Getters ---
 
 /******************************************************************
@@ -104,12 +133,7 @@ int texto_getCharCount(Texto t);
  ****************************************************************************************/
 int texto_getType(Texto t);
 
-/******************************************************************
-*@brief Calcula a "área" (comprimento * altura base) de um texto.
-*@param t O texto.
-*@return A área (double) do texto.
-******************************************************************/
-double texto_calcArea(Texto t);
+
 
 // --- Setters ---
 
@@ -183,30 +207,6 @@ void texto_setSize(Texto t, char* fSize);
 *@param a A nova Âncora.
 ******************************************************************/
 void texto_setAnchor(Texto t, char a);
-
-/******************************************************************
-*@brief Libera a memória alocada para o objeto de texto.
-*@param t O texto a ser destruído.
-******************************************************************/
-void texto_destroy(Texto t);
-
-
-/******************************************************************
-*@brief Cria uma linha utilizando as coordenadas de um texto.
-*@param t O texto original.
-*@return A linha resultante.
-******************************************************************/
-Linha conversaoTxtoLinha(Texto t);
-
-
-
-/****************************************************************************************
-* @brief Converte um texto em um anteparo de acordo com as convenções do projeto.
-* @param t O texto a ser convertido.
-* @param ant_id Ponteiro para o ID do anteparo.
-* @return Retorna o anteparo criado.
-****************************************************************************************/
-Anteparo texto_anteparo(Texto t, int ant_id);
 
 
 #endif
